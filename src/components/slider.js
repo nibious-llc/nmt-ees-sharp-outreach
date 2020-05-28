@@ -16,12 +16,14 @@ export default function SliderWithText(props) {
 			return;
 		}
 		setValue(value);
-		props.onChange(null, value);
-
 	}
 
 	function handleSliderChange(event, value) {
 		setValueAndValidate(value);
+	}
+	function handleSliderChangeCommitted(event, value) {
+		setValueAndValidate(value);
+		props.onChange(null, value);
 	}
 
 	function handleTextChange(event) {
@@ -33,27 +35,24 @@ export default function SliderWithText(props) {
 			<Typography>
 					{props.title}
 			</Typography>
-			<Grid container spacing={2} direction="row"  alignItems="center"  >
-				<Grid item xs={9} >
+			<Grid container spacing={2} direction="row"  alignItems="center" >
+				<Grid item xs={10} >
 					<Slider
+						disabled={props.disabled}
 						min={props.min}
 						valueLabelDisplay={props.valueLabelDisplay}
 						max={props.max}
 						step={props.step}
 						value={value}
+						marks
 						onChange={handleSliderChange}
+						onChangeCommitted={handleSliderChangeCommitted}
 					/>
 				</Grid>
-				<Grid item xs={3}>
-					<TextField
-						type="number"
-						value={value}
-						InputProps={{
-							endAdornment: <InputAdornment position="end">{props.units}</InputAdornment>
-						}}
-						
-						onChange={handleTextChange}
-					/>
+				<Grid item xs={2}>
+					<Typography variant="body1" align="left">
+					{value}	
+					</Typography>
 				</Grid>
 				
 			</Grid>

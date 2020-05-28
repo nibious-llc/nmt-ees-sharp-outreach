@@ -4,29 +4,41 @@ import { makeStyles } from '@material-ui/core/styles';
 import { index, min, max } from 'mathjs';
 import { Line } from 'react-chartjs-2';
 import Slider from './slider';
-import { Paper, Typography, Button, Grid, CircularProgress } from '@material-ui/core';
+import { Paper, Typography, Backdrop, Grid, CircularProgress } from '@material-ui/core';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import Worker from 'worker-loader!./sharp_fdm_glover_v2';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		margin: theme.spacing(2),
 		paddingLeft: theme.spacing(1),
-		paddingRight: theme.spacing(1)
+		paddingRight: theme.spacing(1),
+	},
+	backdrop: {
+		zIndex: theme.zIndex.drawer,
+		position:"absolute",
+		color: '#fff',
+		width:"100%",
+		height:"100%",
+	},
+	graphGrid: {
+		positon: "relative"
 	}
 }));
 
 export default function Body(props) {
-	const worker = new Worker('./sharp_fdm_glover_v2.js');
+	let updatingGraphCount = 0;
+	const worker = new Worker();
 	const [delx, setDelx] = useState(60);
 	const [k, setK] = useState(-11);
 	const [Rech, setRech] = useState(0.009);
 	const [Qp, setQp] = useState(0.35);
 	const [nQp, setnQp] = useState(10);
 
-
-	const [data, setData] = useState(null);
+	const [updatingGraph, setUpdatingGraph] = useState(true);
 	const [minY, setMin] = useState(0);
 	const [maxY, setMax] = useState(0);
-
+	const [errorText, setErrorText] = useState(null);
 	const [grid1Item, setGrid1Item] = useState(null);
 	const classes = useStyles();
 
@@ -37,13 +49,23 @@ export default function Body(props) {
 		event == "Rech" && setRech(value);
 		event == "Qp" && setQp(value);
 		event == "nQp" && setnQp(value);
-		setGrid1Item(<CircularProgress/>)
-		console.log("Posting Message");
-		worker.postMessage([delx, k, Rech, Qp, nQp]);
 	};
 
-	const generateGraph = (results) => {
+	function calcInterface() {
+		setUpdatingGraph(true);
+		setErrorText(null);
+		worker.postMessage([delx, k, Rech, Qp, nQp]);
+	}
+
+	function generateGraph(results) {
 			const [x, h, z] = results;
+
+			if(max(z) > -5) {
+				setErrorText("Calculated freshwater thickness less than 5 m thickness. Please choose a lower pumping rate or higher permeability.");
+				setUpdatingGraph(false);
+				return;
+			}
+
 			let data = {
 				labels: x,
 				datasets: [
@@ -64,7 +86,6 @@ export default function Body(props) {
 				backgroundColor: '#72a9e1'
 			});
 	
-			setData(data);
 			setMin(min([min(h), min(z)]) - 20);
 			setMax(max([max(h), max(z)]) + 20);
 			setGrid1Item(<Line data={data} title="Something" options={
@@ -94,21 +115,40 @@ export default function Body(props) {
 					title: {
 						display: true,
 						test: ''
+					},
+					legend: {
+						onClick: (e) => e.stopPropagation()
 					}
 			}}/>)
+			setUpdatingGraph(false);
 	}
 
 	useEffect(() => {
 		worker.onmessage = (e) => {
 			generateGraph(e.data);
 		}
-  }, [worker]);
+	}, [worker]);
+	
+	useEffect(() => {
+		calcInterface();
+	}, [delx, k, Rech, Qp, nQp]);
 
 	return(
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
-				<Grid item xs={8}>
-					{grid1Item}
+				<Grid item xs={8} className={classes.graphGrid}>
+					<div style={{position: "relative"}}>
+						{grid1Item}
+						{
+						errorText && <div style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
+							<Typography>{errorText}</Typography>
+						</div>
+						}
+						{updatingGraph && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
+							<CircularProgress/>
+						</Grid>}
+						
+					</div>
 				</Grid>
 				<Grid item xs={4}>
 					<Typography variant="h4" >
@@ -116,54 +156,54 @@ export default function Body(props) {
 					</Typography>
 
 					<Slider
-						title = "delx: Controls the grid size"
+						disabled={updatingGraph}
+						title = "delx (m): Controls the grid size"
 						min={30}
 						valueLabelDisplay="auto"
 						max={120}
-						units="m"
 						value={delx}
 						onChange={(event, value) => handleSliderChange("delx", value)}
 					/>
 					
 					<Slider
-						title="k: Controls the permeability of aquifer"
+						disabled={updatingGraph}
+						title="k (m^2): Controls the permeability of aquifer"
 						min={-14}
 						valueLabelDisplay="auto"
 						max={-10}
-						units="m^2"
 						step={.1}
 						value={k}
 						onChange={(event, value) => handleSliderChange("k", value)}
 					/>
 
 					<Slider
-						title="Rech: The amount of water replenishing the aquifer"
+						disabled={updatingGraph}
+						title="Rech (m/day): The amount of water replenishing the aquifer"
 						min={.001}
 						valueLabelDisplay="auto"
 						max={.020}
 						step={.001}
-						units="m/day"
 						value={Rech}
 						onChange={(event, value) => handleSliderChange("Rech", value)}
 					/>
 
 					<Slider
-						title="Qp: The pumping rate"
+						disabled={updatingGraph}
+						title="Qp (m^3/day/island area): The pumping rate"
 						min={.1}
 						valueLabelDisplay="auto"
 						max={1}
 						step={.05}
-						units="m^3/day/m"
 						value={Qp}
 						onChange={(event, value) => handleSliderChange("Qp", value)}
 					/>
 
 					<Slider
+						disabled={updatingGraph}
 						title="nQp: The node where pumping occurs from"
 						min={10}
 						valueLabelDisplay="auto"
 						max={90}
-						units=""
 						value={nQp}
 						onChange={(event, value) => handleSliderChange("nQp", value)}
 					/>
