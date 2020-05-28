@@ -57,6 +57,8 @@ function validateUserInput(delx, k, Rech, Qp, nQp) {
 
 
 
+
+
 /**
  * Calculate the Sharp Interface with given inputs
  * @param {double} delx m: controls size of grid; perhaps vary between 30m to 120m
@@ -65,7 +67,7 @@ function validateUserInput(delx, k, Rech, Qp, nQp) {
  * @param {double} Qp Pumping rate (m^3/day/island length) The higher Qp, the lower the water table falls around the pumpming node nQp. If pumping rate is set too high, the code blows up. 
  * @param {int} nQp node where pumping occurs from. Shoud be constrated to be between nodes 10-90
  */
-export default function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQp = 10) {
+function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQp = 10) {
 
 
 	if (validateUserInput(delx, k, Rech, Qp, nQp) == false) {
@@ -100,8 +102,6 @@ export default function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 
 	const Rr = (rho_s-rho_f)/rho_s;
 	
 	const [x, h, z] = initIterationLoop(Nx, delx);
-	const hh = matrix();
-	const zz = matrix();
 
 	for (let it = 0; it < Iter; it++) {
 
@@ -220,18 +220,13 @@ export default function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 
 			}
 		}
 
-		for(let n = 0; n < Nx; n++) {
-			hh.set([n, it], h[n]);
-			zz.set([n, it], z[n]);
-		}
-
 		qf_glover.set([it, 0], rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx);
 	 
 		z[0] = 0 -  qf_glover.get([it, 0]);
 		z[Nx - 1] = 0 -  qf_glover.get([it, 0]);
 	}
 
-	return [hh, zz]
+	return [x, h, z]
 /*
    % position of interface is controlled by this flux calculation
    % if there is less recharge, the interface will approach the elevation
@@ -269,3 +264,16 @@ legend('water table elev.(m)','saltwater-freshwater interface')
 if(process.env.NODE_ENV == "test") {
 	module.exports =  {SharpInterface,initIterationLoop, validateUserInput, calculateTransmissivities}
 } 
+
+self.onmessage = async (e) => {
+	if (!e) return;
+
+	const delx = e[0];
+	const k = e[1];
+	const Rech = e[2];
+	const Qp = e[3];
+	const nQp = e[4]
+
+	const result = SharpInterface(delx, Math.pow(10,k), Rech, Qp, nQp);
+	self.postMessage(result);
+};

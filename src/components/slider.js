@@ -1,0 +1,63 @@
+import React from 'react';
+import { useState} from 'react';
+import Slider from '@material-ui/core/Slider';
+import { Grid, TextField, InputAdornment, Typography } from '@material-ui/core';
+
+
+export default function SliderWithText(props) {
+
+	const [value, setValue] = useState(props.value);
+
+
+	function setValueAndValidate(value) {
+		if(value < props.min) {
+			return;
+		} else if(value > props.max) {
+			return;
+		}
+		setValue(value);
+		props.onChange(null, value);
+
+	}
+
+	function handleSliderChange(event, value) {
+		setValueAndValidate(value);
+	}
+
+	function handleTextChange(event) {
+		setValueAndValidate(Number(event.target.value));
+	}
+
+	return (
+		<Grid container justify="flex-start" alignItems="flex-start">
+			<Typography>
+					{props.title}
+			</Typography>
+			<Grid container spacing={2} direction="row"  alignItems="center"  >
+				<Grid item xs={9} >
+					<Slider
+						min={props.min}
+						valueLabelDisplay={props.valueLabelDisplay}
+						max={props.max}
+						step={props.step}
+						value={value}
+						onChange={handleSliderChange}
+					/>
+				</Grid>
+				<Grid item xs={3}>
+					<TextField
+						type="number"
+						value={value}
+						InputProps={{
+							endAdornment: <InputAdornment position="end">{props.units}</InputAdornment>
+						}}
+						
+						onChange={handleTextChange}
+					/>
+				</Grid>
+				
+			</Grid>
+
+		</Grid>
+	);
+}
