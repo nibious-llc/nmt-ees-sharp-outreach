@@ -268,12 +268,13 @@ if(process.env.NODE_ENV == "test") {
 self.onmessage = async (e) => {
 	if (!e) return;
 
-	const delx = e[0];
-	const k = e[1];
-	const Rech = e[2];
-	const Qp = e[3];
-	const nQp = e[4]
+	const delx = e.data[0];
+	const k = e.data[1];
+	const Rech = e.data[2];
+	const Qp = e.data[3];
+	const nQp = e.data[4]
 
 	const result = SharpInterface(delx, Math.pow(10,k), Rech, Qp, nQp);
+	
 	self.postMessage(result);
 };
