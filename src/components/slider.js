@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState} from 'react';
 import Slider from '@material-ui/core/Slider';
-import { Grid, TextField, InputAdornment, Typography } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 
 
 export default function SliderWithText(props) {

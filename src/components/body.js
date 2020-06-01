@@ -1,12 +1,13 @@
 import React, {useEffect} from 'react';
 import { useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { index, min, max } from 'mathjs';
+import { min, max } from 'mathjs';
 import { Line } from 'react-chartjs-2';
+import Fade from '@material-ui/core/Fade';
 import Slider from './slider';
-import { Paper, Typography, Backdrop, Grid, CircularProgress } from '@material-ui/core';
+import { Paper, Typography, Grid, CircularProgress } from '@material-ui/core';
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import Worker from 'worker-loader!./sharp_fdm_glover_v2';
+import Worker from 'workerize-loader!./sharp_fdm_glover_v2.worker';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -27,8 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Body(props) {
-	let updatingGraphCount = 0;
-	const worker = new Worker();
+	const worker = Worker();
 	const [delx, setDelx] = useState(60);
 	const [k, setK] = useState(-11);
 	const [Rech, setRech] = useState(0.009);
@@ -124,8 +124,10 @@ export default function Body(props) {
 	}
 
 	useEffect(() => {
-		worker.onmessage = (e) => {
-			generateGraph(e.data);
+		worker.onmessage = (message) => {
+			if(message.data.type === 'results' ) {
+				generateGraph(message.data.data);
+			}
 		}
 	}, [worker]);
 	
@@ -136,21 +138,22 @@ export default function Body(props) {
 	return(
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
-				<Grid item xs={8} className={classes.graphGrid}>
+				<Grid item md={8} xs={12} className={classes.graphGrid}>
 					<div style={{position: "relative"}}>
 						{grid1Item}
-						{
-						errorText && <div style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
-							<Typography>{errorText}</Typography>
-						</div>
-						}
-						{updatingGraph && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
-							<CircularProgress/>
-						</Grid>}
-						
+						<Fade in={errorText}>
+							<Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
+							<Typography><b>{errorText}</b></Typography>
+							</Grid>
+						</Fade>						
+						<Fade in={updatingGraph}>
+							<Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
+								<CircularProgress/>
+							</Grid>
+						</Fade>
 					</div>
 				</Grid>
-				<Grid item xs={4}>
+				<Grid item md={4} xs={12}>
 					<Typography variant="h4" >
 						Controls
 					</Typography>

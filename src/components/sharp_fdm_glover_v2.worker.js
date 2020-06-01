@@ -1,3 +1,4 @@
+/* eslint-disable  no-restricted-globals */
 import { lusolve, matrix, zeros} from 'mathjs';
 
 
@@ -67,7 +68,7 @@ function validateUserInput(delx, k, Rech, Qp, nQp) {
  * @param {double} Qp Pumping rate (m^3/day/island length) The higher Qp, the lower the water table falls around the pumpming node nQp. If pumping rate is set too high, the code blows up. 
  * @param {int} nQp node where pumping occurs from. Shoud be constrated to be between nodes 10-90
  */
-function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQp = 10) {
+export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQp = 10) {
 
 
 	if (validateUserInput(delx, k, Rech, Qp, nQp) == false) {
@@ -225,7 +226,6 @@ function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQp = 10)
 		z[0] = 0 -  qf_glover.get([it, 0]);
 		z[Nx - 1] = 0 -  qf_glover.get([it, 0]);
 	}
-
 	return [x, h, z]
 /*
    % position of interface is controlled by this flux calculation
@@ -275,6 +275,5 @@ self.onmessage = async (e) => {
 	const nQp = e.data[4]
 
 	const result = SharpInterface(delx, Math.pow(10,k), Rech, Qp, nQp);
-	
-	self.postMessage(result);
+	self.postMessage({type: 'results', data: result});
 };

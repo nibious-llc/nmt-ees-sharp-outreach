@@ -1,4 +1,4 @@
-import * as SharpInterface from '../../public/sharp_fdm_glover_v2';
+import * as SharpInterface from '../../public/sharp_fdm_glover_v2.worker.js';
 
 
 describe("Testing Sharp Interface", () => {
