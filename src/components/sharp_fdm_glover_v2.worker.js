@@ -21,8 +21,13 @@ function calculateTransmissivities(h, z, Nx, Kf, Ks) {
 	let Tf = new Array(Nx);
 	let Ts = new Array(Nx);
 	for (let n = 0; n < Nx; n++) {
-		let bf = h[n] - z[n];
-		let bs = z[n] + 500;
+		const bf = h[n] - z[n];
+
+		let bs = Math.abs(-1000 - z[n]);
+		if(bs < 50) {
+			bs = 50;
+		}
+
 		Tf[n] = bf*Kf;		
 		Ts[n] = bs*Ks;
 	}
@@ -68,7 +73,7 @@ function validateUserInput(delx, k, Rech, Qp, nQp) {
  * @param {double} Qp Pumping rate (m^3/day/island length) The higher Qp, the lower the water table falls around the pumpming node nQp. If pumping rate is set too high, the code blows up. 
  * @param {int} nQp node where pumping occurs from. Shoud be constrated to be between nodes 10-90
  */
-export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQp = 10) {
+export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQp = 10) {
 
 
 	if (validateUserInput(delx, k, Rech, Qp, nQp) == false) {
@@ -97,7 +102,8 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQ
 	const Kf = k*rho_f*grav/vis_f*3600*24;
 	const Ks = k*rho_s*grav/vis_s*3600*24;
 
-	const qf_glover = matrix();
+	const qf_glover1 = matrix();
+	const qf_glover2 = matrix();
 
 	const D = rho_f/rho_s;
 	const Rr = (rho_s-rho_f)/rho_s;
@@ -221,10 +227,14 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.35, nQ
 			}
 		}
 
-		qf_glover.set([it, 0], rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx);
+		qf_glover1.set([it, 0], rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx);
+
+
+		qf_glover2.set([it, 0],rho_f*Tf[Nx - 1] *(h[Nx-2] - h[Nx -1])/Kf/(rho_s-rho_f)/delx); 
+
 	 
-		z[0] = 0 -  qf_glover.get([it, 0]);
-		z[Nx - 1] = 0 -  qf_glover.get([it, 0]);
+		z[0] = 0 -  qf_glover1.get([it, 0]);
+		z[Nx - 1] = 0 -  qf_glover2.get([it, 0]);
 	}
 	return [x, h, z]
 /*

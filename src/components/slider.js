@@ -26,10 +26,6 @@ export default function SliderWithText(props) {
 		props.onChange(null, value);
 	}
 
-	function handleTextChange(event) {
-		setValueAndValidate(Number(event.target.value));
-	}
-
 	return (
 		<Grid container justify="flex-start" alignItems="flex-start">
 			<Typography>

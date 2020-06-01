@@ -32,7 +32,7 @@ export default function Body(props) {
 	const [delx, setDelx] = useState(60);
 	const [k, setK] = useState(-11);
 	const [Rech, setRech] = useState(0.009);
-	const [Qp, setQp] = useState(0.35);
+	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
