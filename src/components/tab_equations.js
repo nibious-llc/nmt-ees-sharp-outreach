@@ -94,7 +94,7 @@ export default function Equations(props) {
 						<Typography>
 							The program must calculate interblock transmisivities due to changes in saturated thickness. The variables listed in Figure 2 are as follows:
 						</Typography>
-							<Grid container direction="column" xs>
+							<Grid container direction="column">
 								<Grid container justify="center">
 									<Grid item xs={3}>
 										<MathJax.Node formula={eq_bfp}/>
