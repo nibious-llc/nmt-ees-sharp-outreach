@@ -1,5 +1,4 @@
-import React, {useEffect} from 'react';
-import { useState} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper, Typography, Container, Box, Grid} from '@material-ui/core';
 import NumericSchematic from '../images/numeric_schematic.jpg';
@@ -18,21 +17,8 @@ const useStyles = makeStyles((theme) => ({
 		paddingLeft: theme.spacing(1),
 		paddingRight: theme.spacing(1),
 	},
-	backdrop: {
-		zIndex: theme.zIndex.drawer,
-		position:"absolute",
-		color: '#fff',
-		width:"100%",
-		height:"100%",
-	},
-	graphGrid: {
-		positon: "relative"
-	},
 	image: {
 		width: '100%'
-	},
-	text: {
-		margin: theme.spacing(2)
 	},
 	equationNumber: {
 		marginLeft: theme.spacing(2)
@@ -59,12 +45,12 @@ function Equation(props) {
 export default function Equations(props) {
 
 	const classes = useStyles();
-	const eq1 = `\\frac{\\partial }{\\partial x}\\left[T^f\\left(x\\right)\\frac{\\partial h}{\\partial x}\\right]=R-Q_p`
-	const eq2 = `\\frac{\\partial }{\\partial x}\\left[\\frac{\\rho_s-\\rho_f}{\\rho_s}T^s\\left(x\\right)\\frac{\\partial z}{\\partial x}+\\frac{\\rho_f}{\\rho_s}T^s\\left(x\\right)\\frac{\\partial h}{\\partial x}\\right]=0`
-	const eq_bfp = `\\text{Bfp}(i)=\\frac{T_i^f+T_{i+1}^f}{2}`
-	const eq_bfm = `\\text{Bfm}(i)=\\frac{T_i^f+T_{i-1}^f}{2}`
-	const eq_bsp = `\\text{Bsp}(i)=\\frac{T_i^s+T_{i+1}^s}{2}`
-	const eq_bsm = `\\text{Bsm}(i)=\\frac{T_i^s+T_{i-1}^s}{2}`
+	const eq1 = `\\frac{\\partial }{\\partial x}\\left[T^f\\left(x\\right)\\frac{\\partial h}{\\partial x}\\right]=R-Q_p`;
+	const eq2 = `\\frac{\\partial }{\\partial x}\\left[\\frac{\\rho_s-\\rho_f}{\\rho_s}T^s\\left(x\\right)\\frac{\\partial z}{\\partial x}+\\frac{\\rho_f}{\\rho_s}T^s\\left(x\\right)\\frac{\\partial h}{\\partial x}\\right]=0`;
+	const eq_bfp = `\\text{Bfp}(i)=\\frac{T_i^f+T_{i+1}^f}{2}`;
+	const eq_bfm = `\\text{Bfm}(i)=\\frac{T_i^f+T_{i-1}^f}{2}`;
+	const eq_bsp = `\\text{Bsp}(i)=\\frac{T_i^s+T_{i+1}^s}{2}`;
+	const eq_bsm = `\\text{Bsm}(i)=\\frac{T_i^s+T_{i-1}^s}{2}`;
 	
 	return (
 		<Container maxWidth="lg">
@@ -84,7 +70,7 @@ export default function Equations(props) {
 						</Typography>
 						<Typography variant="h2">Initial Conditions</Typography>
 						<Typography>
-							While this is a steady-state problem, we have to assign initial guesses of the values of h(x) and z(x). We initial guesses are:
+							While this is a steady-state problem, we have to assign initial guesses of the values of <MathJax.Node inline formula={'h(x)'}/> and <MathJax.Node inline formula={'z(x)'}/>. We initial guesses are:
 						</Typography>
 						<MathJax.Node formula={'h(x) = 0m'}/>
 						<MathJax.Node formula={'z(x) = -50m'}/> 
@@ -98,7 +84,7 @@ export default function Equations(props) {
 						</Typography>
 						<Container maxWidth="md">
 							<Box textAlign="center" alignItems="center">
-								<img className={classes.image} src={NumericSchematic}/>
+								<img className={classes.image} src={NumericSchematic} alt="Schematic diagram numerical grid used in the sharp interface model to be developed in this assignment."/>
 								<Typography variant="caption">
 									<b>Figure 1.</b> <i>Schematic diagram numerical grid used in the sharp interface model to be developed in this assignment.</i>
 								</Typography>
@@ -127,7 +113,7 @@ export default function Equations(props) {
 									</Grid>
 								</Grid>
 							</Grid>
-							<Typography>where the matrix coefficients Bfp, Bfm, Bsp, Bsm are the forward (node "<MathJax.Node formula={'i'} inline/>" and "<MathJax.Node formula={'i+1'} inline/>") and backwards (node "<MathJax.Node formula={'i'} inline/>" and "<MathJax.Node formula={'i-1'} inline/>") averages of the nodal transmissivities. The letters <MathJax.Node formula={'f'} inline/> and <MathJax.Node formula={'s'} inline/> denotes freshwater or saltwater transmissivities. </Typography>
+							<Typography>where the matrix coefficients Bfp, Bfm, Bsp, Bsm are the forward (node <MathJax.Node formula={'i'} inline/> and <MathJax.Node formula={'i+1'} inline/>) and backwards (node <MathJax.Node formula={'i'} inline/> and <MathJax.Node formula={'i-1'} inline/>) averages of the nodal transmissivities. The letters <MathJax.Node formula={'f'} inline/> and <MathJax.Node formula={'s'} inline/> denotes freshwater or saltwater transmissivities. </Typography>
 
 							<Container maxWidth="sm">
 								<TableContainer component={Paper}>
@@ -195,24 +181,24 @@ export default function Equations(props) {
 								</Box>
 							</Container>							
 							<Typography>
-								These two equations are non-linear and need to be solved simultaneously.  There are a of 101 nodes and two variables (unknowns: h and z) yielding 202 "degrees of freedom" (unknowns). In the codes, the boundary conditions (elevations of the interface and water table) are specified for nodes (1) and (101). The base of the domain is at dynamically calculated. Imposing specified values at the two boundaries reduces the number of unknowns to 198 which is the size of the “A” matrix.  The first two unknowns are h(2) and z(2). The last two are h(100) and z(100).  The "A" matrix and "B" vector for the first 
+								These two equations are non-linear and need to be solved simultaneously.  There are a of 101 nodes and two variables (unknowns: <MathJax.Node inline formula={'h'}/> and <MathJax.Node inline formula={'z'}/>) yielding 202 "degrees of freedom" (unknowns). In the codes, the boundary conditions (elevations of the interface and water table) are specified for nodes <MathJax.Node inline formula={'(1)'}/> and <MathJax.Node inline formula={'(101)'}/>. The base of the domain is at dynamically calculated. Imposing specified values at the two boundaries reduces the number of unknowns to 198 which is the size of the <MathJax.Node inline formula={'A'}/> matrix.  The first two unknowns are <MathJax.Node inline formula={'h(2)'}/> and <MathJax.Node inline formula={'z(2)'}/>. The last two are <MathJax.Node inline formula={'h(100)'}/> and <MathJax.Node inline formula={'z(100)'}/>.  The <MathJax.Node inline formula={'A'}/> matrix and <MathJax.Node inline formula={'B'}/> vector for the first 
 							</Typography>
 							<Container maxWidth="md">
 								<Box textAlign="center" alignItems="center">
-									<img className={classes.image} src={MatrixPic}/>
+									<img className={classes.image} src={MatrixPic} alt="A Matrix and B vector for sharp interface equations using the finite difference method for the first few unknowns."/>
 									<Typography variant="caption">
-										<b>Figure 2.</b> <i>A Matrix and B vector for sharp interface equations using the finite difference method for the first few unknowns. </i>
+										<b>Figure 2.</b> <i><MathJax.Node inline formula={'A'}/> Matrix and <MathJax.Node inline formula={'B'}/> vector for sharp interface equations using the finite difference method for the first few unknowns. </i>
 									</Typography>
 									</Box>
 								</Container>
 							<Typography>
-								four nodes (boundary conditions imposed) is shown in Figure 2. The code uses transmissivity with is the product of saturated thickness (the difference between h(x)-z(x)) times the hydraulic conductivity. And illustration of how the saturated thickness changes with each iteration is shown in Figure 3.
+								four nodes (boundary conditions imposed) is shown in Figure 2. The code uses transmissivity with is the product of saturated thickness (the difference between <MathJax.Node inline formula={'h(x)-z(x)'}/>) times the hydraulic conductivity. And illustration of how the saturated thickness changes with each iteration is shown in Figure 3.
 							</Typography>
 							<Container maxWidth="md">
 								<Box textAlign="center" alignItems="center">
-									<img className={classes.image} src={InterfaceChanges}/>
+									<img className={classes.image} src={InterfaceChanges} alt="Changes in saturated thickness (h(x)-z(x))with iteration level."/>
 									<Typography variant="caption">
-										<b>Figure 3.</b> <i>Changes in saturated thickness (h(x)-z(x))with iteration level.</i>
+										<b>Figure 3.</b> Changes in saturated thickness <MathJax.Node inline formula={"(h(x)-z(x))"}/> with iteration level.
 									</Typography>
 								</Box>
 							</Container>
