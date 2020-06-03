@@ -143,16 +143,14 @@ export default function InterfaceCalculator(props) {
 				<Grid item md={8} xs={12} className={classes.graphGrid}>
 					<div style={{position: "relative"}}>
 						{grid1Item}
-						<Fade in={errorText}>
-							<Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
+						{ errorText && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
 							<Typography><b>{errorText}</b></Typography>
 							</Grid>
-						</Fade>						
-						<Fade in={updatingGraph}>
-							<Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
-								<CircularProgress/>
-							</Grid>
-						</Fade>
+						}					
+						{updatingGraph && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
+							<CircularProgress/>
+						</Grid>
+						}
 					</div>
 				</Grid>
 				<Grid item md={4} xs={12}>
