@@ -1,5 +1,4 @@
-import React, {useEffect} from 'react';
-import { useState} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import InterfaceCalculator from './tab_calc.js';
 import HomeTab from './tab_home';

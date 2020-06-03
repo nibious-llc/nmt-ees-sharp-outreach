@@ -129,10 +129,12 @@ export default function InterfaceCalculator(props) {
 				generateGraph(message.data.data);
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, [worker]);
 	
 	useEffect(() => {
 		calcInterface();
+		// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, [delx, k, Rech, Qp, nQp]);
 
 	return(
