@@ -3,7 +3,6 @@ import { useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { min, max } from 'mathjs';
 import { Line } from 'react-chartjs-2';
-import Fade from '@material-ui/core/Fade';
 import Slider from './slider';
 import { Paper, Typography, Grid, CircularProgress } from '@material-ui/core';
 // eslint-disable-next-line import/no-webpack-loader-syntax

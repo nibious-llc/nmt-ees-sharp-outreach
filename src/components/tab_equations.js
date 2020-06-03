@@ -1,9 +1,9 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper, Typography, Container, Box, Grid} from '@material-ui/core';
-import NumericSchematic from '../images/numeric_schematic.jpg';
-import MatrixPic from '../images/matrix.jpg';
-import InterfaceChanges from '../images/InterfaceChanges.jpg';
+import NumericSchematic from '../images/numeric_schematic.webp';
+import MatrixPic from '../images/matrix.webp';
+import InterfaceChanges from '../images/InterfaceChanges.webp';
 import MathJax from 'react-mathjax';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';

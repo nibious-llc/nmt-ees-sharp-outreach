@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper, Typography, Container, Box} from '@material-ui/core';
-import IslandSchematic from '../images/island_schematic.jpg';
+import IslandSchematic from '../images/island_schematic.webp';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
