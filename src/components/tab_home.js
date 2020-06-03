@@ -1,5 +1,4 @@
-import React, {useEffect} from 'react';
-import { useState} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper, Typography, Container, Box} from '@material-ui/core';
 import IslandSchematic from '../images/island_schematic.jpg';
@@ -60,7 +59,7 @@ export default function Home(props) {
 					</Typography>
 				</Box>
 				<Container maxWidth="md">
-					<img className={classes.image} src={IslandSchematic}/>
+					<img className={classes.image} src={IslandSchematic} alt="A view of the island layout"/>
 				</Container>
 			</Paper>
 		</Container>

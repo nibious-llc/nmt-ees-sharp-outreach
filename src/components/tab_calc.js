@@ -44,11 +44,11 @@ export default function InterfaceCalculator(props) {
 
 
 	function handleSliderChange(event, value) {
-		event == "delx" && setDelx(value);
-		event == "k" && setK(value);
-		event == "Rech" && setRech(value);
-		event == "Qp" && setQp(value);
-		event == "nQp" && setnQp(value);
+		event === "delx" && setDelx(value);
+		event === "k" && setK(value);
+		event === "Rech" && setRech(value);
+		event === "Qp" && setQp(value);
+		event === "nQp" && setnQp(value);
 	};
 
 	function calcInterface() {

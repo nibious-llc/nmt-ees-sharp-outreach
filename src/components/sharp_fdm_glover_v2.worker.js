@@ -76,7 +76,7 @@ function validateUserInput(delx, k, Rech, Qp, nQp) {
 export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQp = 10) {
 
 
-	if (validateUserInput(delx, k, Rech, Qp, nQp) == false) {
+	if (validateUserInput(delx, k, Rech, Qp, nQp) === false) {
 		return false;
 	}
 
@@ -168,7 +168,7 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 			a.set([n, n+2], -1 * Bfp[ic]);
 			b.set([n, 0], Rech*Math.pow(delx, 2));
 
-			if (ic== nQp - 1) {
+			if (ic == nQp - 1) {
 				b.set([n, 0], b.get([n,0]) - Qp*Math.pow(delx, 2));
 			}
 			ic = ic+1;
