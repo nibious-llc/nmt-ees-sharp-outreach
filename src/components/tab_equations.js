@@ -74,7 +74,7 @@ export default function Equations(props) {
 						<Typography variant="h1">
 							Equations
 						</Typography>
-						<Typography className={classes.text}>
+						<Typography>
 							The ordinary differential equations (one for freshwater and one for saltwater) are given by: 
 						</Typography>
             <Equation tex={eq1} equationNumber="1"/>
@@ -97,10 +97,12 @@ export default function Equations(props) {
 							The position of the freshwater-saltwater thickness varies depending on the flux to the coastline (Glover, 1959). Values of variables initially set in the model are listed in Table 1. Some of these variables are listed in Figure 1.
 						</Typography>
 						<Container maxWidth="md">
-							<img className={classes.image} src={NumericSchematic}/>
-							<Typography>
-								<b>Figure 1.</b> <i>Schematic diagram numerical grid used in the sharp interface model to be developed in this assignment.</i>
-							</Typography>
+							<Box textAlign="center" alignItems="center">
+								<img className={classes.image} src={NumericSchematic}/>
+								<Typography variant="caption">
+									<b>Figure 1.</b> <i>Schematic diagram numerical grid used in the sharp interface model to be developed in this assignment.</i>
+								</Typography>
+							</Box>
 						</Container>
 						
 						<Typography>
@@ -186,24 +188,33 @@ export default function Equations(props) {
 										</TableBody>
 									</Table>
 								</TableContainer>
-							</Container>
+								<Box textAlign="center" alignItems="center">
+									<Typography variant="caption">
+										<b>Table 1.</b> List of variables and variable values to be used in this problem set.
+									</Typography>
+								</Box>
+							</Container>							
 							<Typography>
 								These two equations are non-linear and need to be solved simultaneously.  There are a of 101 nodes and two variables (unknowns: h and z) yielding 202 "degrees of freedom" (unknowns). In the codes, the boundary conditions (elevations of the interface and water table) are specified for nodes (1) and (101). The base of the domain is at dynamically calculated. Imposing specified values at the two boundaries reduces the number of unknowns to 198 which is the size of the “A” matrix.  The first two unknowns are h(2) and z(2). The last two are h(100) and z(100).  The "A" matrix and "B" vector for the first 
 							</Typography>
 							<Container maxWidth="md">
-								<img className={classes.image} src={MatrixPic}/>
-								<Typography>
-									<b>Figure 2.</b> <i>A Matrix and B vector for sharp interface equations using the finite difference method for the first few unknowns. </i>
-								</Typography>
-							</Container>
+								<Box textAlign="center" alignItems="center">
+									<img className={classes.image} src={MatrixPic}/>
+									<Typography variant="caption">
+										<b>Figure 2.</b> <i>A Matrix and B vector for sharp interface equations using the finite difference method for the first few unknowns. </i>
+									</Typography>
+									</Box>
+								</Container>
 							<Typography>
 								four nodes (boundary conditions imposed) is shown in Figure 2. The code uses transmissivity with is the product of saturated thickness (the difference between h(x)-z(x)) times the hydraulic conductivity. And illustration of how the saturated thickness changes with each iteration is shown in Figure 3.
 							</Typography>
 							<Container maxWidth="md">
-								<img className={classes.image} src={InterfaceChanges}/>
-								<Typography>
-									<b>Figure 3.</b> <i>Changes in saturated thickness (h(x)-z(x))with iteration level.</i>
-								</Typography>
+								<Box textAlign="center" alignItems="center">
+									<img className={classes.image} src={InterfaceChanges}/>
+									<Typography variant="caption">
+										<b>Figure 3.</b> <i>Changes in saturated thickness (h(x)-z(x))with iteration level.</i>
+									</Typography>
+								</Box>
 							</Container>
 							<Typography variant="h2">References</Typography>
 							<Typography>
@@ -215,9 +226,6 @@ export default function Equations(props) {
 
         	</MathJax.Provider>
 				</Box>
-				<Container maxWidth="md">
-					
-				</Container>
 			</Paper>
 		</Container>
 	);
