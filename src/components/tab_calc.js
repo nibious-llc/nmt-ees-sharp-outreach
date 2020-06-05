@@ -57,7 +57,10 @@ export default function InterfaceCalculator(props) {
 	}
 
 	function generateGraph(results) {
-			const [x, h, z] = results;
+			const [x, hh, zz] = results;
+
+			const z = zz[zz.length - 1];
+			const h = hh[hh.length - 1];
 
 			if(max(z) > -5) {
 				setErrorText("Calculated freshwater thickness less than 5 m thickness. Please choose a lower pumping rate or higher permeability.");

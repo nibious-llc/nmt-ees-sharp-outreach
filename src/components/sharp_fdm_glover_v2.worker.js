@@ -99,6 +99,15 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		   									// to illstrate the non-linear nature of the solution. 
 
 
+	const zz = new Array(Iter)
+	const hh = new Array(Iter)
+
+	for(let i = 0; i < Iter; i++) {
+		zz[i] = new Array(Nx)
+		hh[i] = new Array(Nx)
+	}
+
+
 	const Kf = k*rho_f*grav/vis_f*3600*24;
 	const Ks = k*rho_s*grav/vis_s*3600*24;
 
@@ -209,12 +218,6 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 			b.set([n,0], D*Bsp[ic]*h[Nx - 1]+Rr*Bsp[ic]*z[Nx - 1]);
 		}
 
-		/*for(let n = 2; n < 4; n++) {
-			for(let j = 0; j < 4; j++) {
-				console.log(n + "/" + j+ ": " + a.get([n,j]));
-			}
-		}*/
-
 		//hz =a\b;
 		const hz = lusolve(a, b);
 
@@ -228,15 +231,18 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		}
 
 		qf_glover1.set([it, 0], rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx);
-
-
 		qf_glover2.set([it, 0],rho_f*Tf[Nx - 1] *(h[Nx-2] - h[Nx -1])/Kf/(rho_s-rho_f)/delx); 
 
-	 
+
 		z[0] = 0 -  qf_glover1.get([it, 0]);
 		z[Nx - 1] = 0 -  qf_glover2.get([it, 0]);
+
+		for(let n = 0; n < Nx; n++) {
+			hh[it][n] = h[n];
+			zz[it][n] = z[n];
+		}
 	}
-	return [x, h, z]
+	return [x, hh, zz]
 /*
    % position of interface is controlled by this flux calculation
    % if there is less recharge, the interface will approach the elevation
