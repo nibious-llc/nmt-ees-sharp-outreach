@@ -39,7 +39,7 @@ export default function Body(props) {
 				indicatorColor="primary"
 				textColor="primary"
 				centered>
-					<Tab label="About"/>
+					<Tab label="Seawater Intrusion"/>
 					<Tab label="Exercises"/>
 					<Tab label="Equations"/>
 			</Tabs>

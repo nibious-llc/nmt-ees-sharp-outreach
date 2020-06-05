@@ -35,7 +35,7 @@ export default function Home(props) {
 			<Paper className={classes.root}>
 				<Box textAlign="left">
 					<Typography variant="h1">
-						About
+						Introduction
 					</Typography>
 					<Typography className={classes.text}>
 						Assessing the effects of pumping on island aquifer systems can be carried out
