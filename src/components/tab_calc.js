@@ -74,14 +74,14 @@ export default function InterfaceCalculator(props) {
 			data.datasets.push({
 				data: z,
 				fill: 'bottom',
-				label: "Seawater-Freshwater Interface",
+				label: "Seawater",
 				backgroundColor: '#ffab55'
 			});
 		
 			data.datasets.push({
 				data: h,
 				fill: 0,
-				label: "Water Table",
+				label: "Fresh Water",
 				backgroundColor: '#72a9e1'
 			});
 	
@@ -116,7 +116,10 @@ export default function InterfaceCalculator(props) {
 						test: ''
 					},
 					legend: {
-						onClick: (e) => e.stopPropagation()
+						onClick: (e) => e.stopPropagation(),
+						labels: {
+							usePointStyle: true
+						}
 					}
 			}}/>)
 			setUpdatingGraph(false);
