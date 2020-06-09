@@ -3,8 +3,8 @@ import { useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { min, max } from 'mathjs';
 import { Line } from 'react-chartjs-2';
-import Slider from './slider';
-import { Paper, Typography, Grid, CircularProgress } from '@material-ui/core';
+import ValueSlider from './slider';
+import { Paper, Typography, Grid, CircularProgress, Slider, Box } from '@material-ui/core';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from 'workerize-loader!./sharp_fdm_glover_v2.worker';
 
@@ -23,8 +23,23 @@ const useStyles = makeStyles((theme) => ({
 	},
 	graphGrid: {
 		positon: "relative"
+	},
+	iterationSlider: {
+		width: '90%'
 	}
 }));
+
+
+function generateMarks() {
+	const results = new Array(10);
+	for(let i = 0; i < 10; i++) {
+		results[i] = {
+			value: i,
+			label: "Iter. " + i
+		}
+	}
+	return results;
+}
 
 export default function InterfaceCalculator(props) {
 	const worker = Worker();
@@ -33,12 +48,18 @@ export default function InterfaceCalculator(props) {
 	const [Rech, setRech] = useState(0.009);
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
+	const [calculatedZZ, setCalculatedZZ] = useState(null);
+	const [calculatedHH, setCalculatedHH] = useState(null);
+	const [calculatedX, setCalculatedX] = useState(null);
+	const [currentIteration, setCurrentIteration] = useState(9);
+	const [sliderValue, setSliderValue] = useState(9);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
-	const [minY, setMin] = useState(0);
-	const [maxY, setMax] = useState(0);
+	const [minY, setMinY] = useState(0);
+	const [maxY, setMaxY] = useState(0);
+	const [minX, setMinX] = useState(0);
+	const [maxX, setMaxX] = useState(0);
 	const [errorText, setErrorText] = useState(null);
-	const [grid1Item, setGrid1Item] = useState(null);
 	const classes = useStyles();
 
 
@@ -50,6 +71,14 @@ export default function InterfaceCalculator(props) {
 		event === "nQp" && setnQp(value);
 	};
 
+	function iterationSliderOnChange(event, value) {
+		setSliderValue(value);
+	}
+
+	function iterationsSliderOnChangeCommited(event, value) {
+		setCurrentIteration(value);
+	}
+
 	function calcInterface() {
 		setUpdatingGraph(true);
 		setErrorText(null);
@@ -59,72 +88,24 @@ export default function InterfaceCalculator(props) {
 	function generateGraph(results) {
 			const [x, hh, zz] = results;
 
+			// Check for invalid results
 			const z = zz[zz.length - 1];
-			const h = hh[hh.length - 1];
-
 			if(max(z) > -5) {
 				setErrorText("Calculated freshwater thickness less than 5 m thickness. Please choose a lower pumping rate or higher permeability.");
 				setUpdatingGraph(false);
 				return;
 			}
 
-			let data = {
-				labels: x,
-				datasets: [
-				]
-			};
-		
-			data.datasets.push({
-				data: z,
-				fill: 'bottom',
-				label: "Seawater",
-				backgroundColor: '#ffab55'
-			});
-		
-			data.datasets.push({
-				data: h,
-				fill: 0,
-				label: "Fresh Water",
-				backgroundColor: '#72a9e1'
-			});
-	
-			setMin(min([min(h), min(z)]) - 20);
-			setMax(max([max(h), max(z)]) + 20);
-			setGrid1Item(<Line data={data} title="Something" options={
-				{
-					scales: {
-							yAxes: [{
-								scaleLabel: {
-									display: true,
-									labelString: "Elevation (m)"
-								},
-								ticks: {
-										suggestedMin: minY, 
-										suggestedMax: maxY
-									}
-							}],
-							xAxes: [{
-								scaleLabel: {
-									display: true,
-									labelString: "Distance (m)"
-								},
-								ticks: {
-									suggestedMin: min(data.labels), 
-									suggestedMax: max(data.labels)
-							}
-							}]
-					},
-					title: {
-						display: true,
-						test: ''
-					},
-					legend: {
-						onClick: (e) => e.stopPropagation(),
-						labels: {
-							usePointStyle: true
-						}
-					}
-			}}/>)
+			setCalculatedHH(hh);
+			setCalculatedZZ(zz);
+			setCalculatedX(x);	
+			
+			setMinY(min(min(zz), min(hh)));
+			setMaxY(max(max(zz), max(hh)));
+			setMinX(min(x));
+			setMaxX(max(x));
+
+			setCurrentIteration(9);
 			setUpdatingGraph(false);
 	}
 
@@ -146,8 +127,59 @@ export default function InterfaceCalculator(props) {
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
 				<Grid item md={8} xs={12} className={classes.graphGrid}>
-					<div style={{position: "relative"}}>
-						{grid1Item}
+					<div style={{position: "relative"}}>				
+					<Line data={{
+							labels: calculatedX,
+							datasets: [
+								{
+									data: calculatedZZ == null ? null : calculatedZZ[currentIteration],
+									fill: 'bottom',
+									label: "Seawater",
+									backgroundColor: '#ffab55'
+								},
+								{
+									data: calculatedHH == null ? null : calculatedHH[currentIteration],
+									fill: 0,
+									label: "Fresh Water",
+									backgroundColor: '#72a9e1'
+								}
+							]
+				
+							}} title="Freshwater/Saltwater Interface" options={
+							{
+								scales: {
+										yAxes: [{
+											scaleLabel: {
+												display: true,
+												labelString: "Elevation (m)"
+											},
+											ticks: {
+													suggestedMin: minY, 
+													suggestedMax: maxY
+												}
+										}],
+										xAxes: [{
+											scaleLabel: {
+												display: true,
+												labelString: "Distance (m)"
+											},
+											ticks: {
+												suggestedMin: minX,
+												suggestedMax: maxX
+										}
+										}]
+								},
+								title: {
+									display: true,
+									test: ''
+								},
+								legend: {
+									onClick: (e) => e.stopPropagation(),
+									labels: {
+										usePointStyle: true
+									}
+								}
+						}}/>
 						{ errorText && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
 							<Typography><b>{errorText}</b></Typography>
 							</Grid>
@@ -156,6 +188,22 @@ export default function InterfaceCalculator(props) {
 							<CircularProgress/>
 						</Grid>
 						}
+						<Box alignContent="center">
+							<Typography variant="caption">
+								Iteration Selection
+							</Typography>
+							<Slider
+								defaultValue={9}
+								onChange={iterationSliderOnChange}
+								onChangeCommitted={iterationsSliderOnChangeCommited}
+								value={sliderValue}
+								marks={generateMarks()}
+								min={0}
+								max={9}
+								track={false}
+								className={classes.iterationSlider}
+							/>
+						</Box>
 					</div>
 				</Grid>
 				<Grid item md={4} xs={12}>
@@ -163,7 +211,7 @@ export default function InterfaceCalculator(props) {
 						Controls
 					</Typography>
 
-					<Slider
+					<ValueSlider
 						disabled={updatingGraph}
 						title = "delx (m): Controls the grid size"
 						min={30}
@@ -173,7 +221,7 @@ export default function InterfaceCalculator(props) {
 						onChange={(event, value) => handleSliderChange("delx", value)}
 					/>
 					
-					<Slider
+					<ValueSlider
 						disabled={updatingGraph}
 						title="k (m^2): Controls the permeability of aquifer"
 						min={-14}
@@ -184,7 +232,7 @@ export default function InterfaceCalculator(props) {
 						onChange={(event, value) => handleSliderChange("k", value)}
 					/>
 
-					<Slider
+					<ValueSlider
 						disabled={updatingGraph}
 						title="Rech (m/day): The amount of water replenishing the aquifer"
 						min={.001}
@@ -195,7 +243,7 @@ export default function InterfaceCalculator(props) {
 						onChange={(event, value) => handleSliderChange("Rech", value)}
 					/>
 
-					<Slider
+					<ValueSlider
 						disabled={updatingGraph}
 						title="Qp (m^3/day/island area): The pumping rate"
 						min={.1}
@@ -206,7 +254,7 @@ export default function InterfaceCalculator(props) {
 						onChange={(event, value) => handleSliderChange("Qp", value)}
 					/>
 
-					<Slider
+					<ValueSlider
 						disabled={updatingGraph}
 						title="nQp: The node where pumping occurs from"
 						min={10}
