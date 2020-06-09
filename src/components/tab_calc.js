@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 		positon: "relative"
 	},
 	iterationSlider: {
-		width: '90%'
+	//	width: '90%'
 	}
 }));
 
@@ -52,7 +52,6 @@ export default function InterfaceCalculator(props) {
 	const [calculatedHH, setCalculatedHH] = useState(null);
 	const [calculatedX, setCalculatedX] = useState(null);
 	const [currentIteration, setCurrentIteration] = useState(9);
-	const [sliderValue, setSliderValue] = useState(9);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
 	const [minY, setMinY] = useState(0);
@@ -71,11 +70,7 @@ export default function InterfaceCalculator(props) {
 		event === "nQp" && setnQp(value);
 	};
 
-	function iterationSliderOnChange(event, value) {
-		setSliderValue(value);
-	}
-
-	function iterationsSliderOnChangeCommited(event, value) {
+	function handleIterationChange(event, value) {
 		setCurrentIteration(value);
 	}
 
@@ -187,23 +182,7 @@ export default function InterfaceCalculator(props) {
 						{updatingGraph && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
 							<CircularProgress/>
 						</Grid>
-						}
-						<Box alignContent="center">
-							<Typography variant="caption">
-								Iteration Selection
-							</Typography>
-							<Slider
-								defaultValue={9}
-								onChange={iterationSliderOnChange}
-								onChangeCommitted={iterationsSliderOnChangeCommited}
-								value={sliderValue}
-								marks={generateMarks()}
-								min={0}
-								max={9}
-								track={false}
-								className={classes.iterationSlider}
-							/>
-						</Box>
+						}							
 					</div>
 				</Grid>
 				<Grid item md={4} xs={12}>
@@ -262,6 +241,16 @@ export default function InterfaceCalculator(props) {
 						max={90}
 						value={nQp}
 						onChange={(event, value) => handleSliderChange("nQp", value)}
+					/>
+
+					<ValueSlider
+						disabled={updatingGraph}
+						title="Iteration: Change which iteration is displayed"
+						min={0}
+						valueLabelDisplay="auto"
+						max={9}
+						value={currentIteration}
+						onChange={handleIterationChange}
 					/>
 				</Grid>
 			</Grid>

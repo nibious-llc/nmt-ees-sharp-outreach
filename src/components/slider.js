@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useState} from 'react';
 import Slider from '@material-ui/core/Slider';
 import { Grid, Typography } from '@material-ui/core';
@@ -25,6 +25,11 @@ export default function SliderWithText(props) {
 		setValueAndValidate(value);
 		props.onChange(null, value);
 	}
+
+	useEffect(() => {
+		setValue(props.value);
+		// eslint-disable-next-line react-hooks/exhaustive-deps,
+	}, [props.value]);
 
 	return (
 		<Grid container justify="flex-start" alignItems="flex-start">
