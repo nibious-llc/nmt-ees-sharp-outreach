@@ -29,18 +29,6 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-
-function generateMarks() {
-	const results = new Array(10);
-	for(let i = 0; i < 10; i++) {
-		results[i] = {
-			value: i,
-			label: "Iter. " + i
-		}
-	}
-	return results;
-}
-
 export default function InterfaceCalculator(props) {
 	const worker = Worker();
 	const [delx, setDelx] = useState(60);
