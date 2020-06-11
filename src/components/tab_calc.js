@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { min, max } from 'mathjs';
 import { Line } from 'react-chartjs-2';
 import ValueSlider from './slider';
-import { Paper, Typography, Grid, CircularProgress, Slider, Box } from '@material-ui/core';
+import { Paper, Typography, Grid, CircularProgress } from '@material-ui/core';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from 'workerize-loader!./sharp_fdm_glover_v2.worker';
 
@@ -36,9 +36,7 @@ export default function InterfaceCalculator(props) {
 	const [Rech, setRech] = useState(0.009);
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
-	const [calculatedZZ, setCalculatedZZ] = useState(null);
-	const [calculatedHH, setCalculatedHH] = useState(null);
-	const [calculatedX, setCalculatedX] = useState(null);
+	const [calculatedData, setCalculatedData] = useState(null);
 	const [currentIteration, setCurrentIteration] = useState(9);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
@@ -58,9 +56,7 @@ export default function InterfaceCalculator(props) {
 		event === "nQp" && setnQp(value);
 	};
 
-	function handleIterationChange(event, value) {
-		setCurrentIteration(value);
-	}
+	
 
 	function calcInterface() {
 		setUpdatingGraph(true);
@@ -73,18 +69,18 @@ export default function InterfaceCalculator(props) {
 
 			// Check for invalid results
 			const z = zz[zz.length - 1];
+			const h = hh[hh.length - 1];
 			if(max(z) > -5) {
 				setErrorText("Calculated freshwater thickness less than 5 m thickness. Please choose a lower pumping rate or higher permeability.");
 				setUpdatingGraph(false);
 				return;
 			}
 
-			setCalculatedHH(hh);
-			setCalculatedZZ(zz);
-			setCalculatedX(x);	
+			setCalculatedData([x, hh, zz]);
+			props.OnUpdateData(results);
 			
-			setMinY(min(min(zz), min(hh)));
-			setMaxY(max(max(zz), max(hh)));
+			setMinY(min(min(z), min(h)));
+			setMaxY(max(max(z), max(h)));
 			setMinX(min(x));
 			setMaxX(max(x));
 
@@ -112,16 +108,16 @@ export default function InterfaceCalculator(props) {
 				<Grid item md={8} xs={12} className={classes.graphGrid}>
 					<div style={{position: "relative"}}>				
 					<Line data={{
-							labels: calculatedX,
+							labels: calculatedData == null ? null : calculatedData[0],
 							datasets: [
 								{
-									data: calculatedZZ == null ? null : calculatedZZ[currentIteration],
+									data: calculatedData == null ? null : calculatedData[2][currentIteration],
 									fill: 'bottom',
 									label: "Seawater",
 									backgroundColor: '#ffab55'
 								},
 								{
-									data: calculatedHH == null ? null : calculatedHH[currentIteration],
+									data: calculatedData == null ? null : calculatedData[1][currentIteration],
 									fill: 0,
 									label: "Fresh Water",
 									backgroundColor: '#72a9e1'
@@ -166,11 +162,11 @@ export default function InterfaceCalculator(props) {
 						{ errorText && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
 							<Typography><b>{errorText}</b></Typography>
 							</Grid>
-						}					
+						}										
 						{updatingGraph && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
 							<CircularProgress/>
 						</Grid>
-						}							
+						}		
 					</div>
 				</Grid>
 				<Grid item md={4} xs={12}>
@@ -231,15 +227,7 @@ export default function InterfaceCalculator(props) {
 						onChange={(event, value) => handleSliderChange("nQp", value)}
 					/>
 
-					<ValueSlider
-						disabled={updatingGraph}
-						title="Iteration: Change which iteration is displayed"
-						min={0}
-						valueLabelDisplay="auto"
-						max={9}
-						value={currentIteration}
-						onChange={handleIterationChange}
-					/>
+					
 				</Grid>
 			</Grid>
 		</Paper>

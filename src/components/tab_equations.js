@@ -1,16 +1,22 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Paper, Typography, Container, Box, Grid} from '@material-ui/core';
+import { Paper, Typography, Container, Box, Grid, ButtonBase} from '@material-ui/core';
 import NumericSchematic from '../images/numeric_schematic.webp';
 import MatrixPic from '../images/matrix.webp';
 import InterfaceChanges from '../images/InterfaceChanges.webp';
+import { useState, useEffect} from 'react';
 import MathJax from 'react-mathjax';
+import { min, max } from 'mathjs';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { Line } from 'react-chartjs-2';
+import ValueSlider from './slider';
+import Popover from '@material-ui/core/Popover';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -22,11 +28,15 @@ const useStyles = makeStyles((theme) => ({
 	},
 	equationNumber: {
 		marginLeft: theme.spacing(2)
+	},
+	definitionButton: {
+		...theme.typography
 	}
 }));
 
 
 function Equation(props) {
+
 	const tex = props.tex;
 	const eqNumber = props.equationNumber;
 	const classes = useStyles();
@@ -42,7 +52,52 @@ function Equation(props) {
 	);
 }
 
+
+function Definition(props) {
+	return (
+		<ButtonBase onClick={props.onClick}>
+			<Typography variant="button">
+				{props.children}
+			</Typography> 
+			<HelpOutlineIcon/>
+		</ButtonBase>
+	);
+
+}
+
 export default function Equations(props) {
+	const [calculatedData, setCalculatedData] = useState(null);
+	const [currentIteration, setCurrentIteration] = useState(0);
+	const [definition, setDefinition] = useState("");
+	const [minY, setMinY] = useState(0);
+	const [maxY, setMaxY] = useState(0);
+	const [minX, setMinX] = useState(0);
+	const [maxX, setMaxX] = useState(0);
+	const [anchorEl, setAnchorEl] = React.useState(null);
+
+	function handleIterationChange(event, value) {
+		setCurrentIteration(value);
+	}
+
+	const handlePopoverClick = (event, definition) => {
+		setAnchorEl(event.currentTarget);
+		setDefinition(definition);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+	const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
+	useEffect(() => {
+		setCalculatedData(props.data);
+		setCurrentIteration(0);
+		// eslint-disable-next-line react-hooks/exhaustive-deps,
+	}, [props]);
+
+
 
 	const classes = useStyles();
 	const eq1 = `\\frac{\\partial }{\\partial x}\\left[T^f\\left(x\\right)\\frac{\\partial h}{\\partial x}\\right]=R-Q_p`;
@@ -51,10 +106,30 @@ export default function Equations(props) {
 	const eq_bfm = `\\text{Bfm}(i)=\\frac{T_i^f+T_{i-1}^f}{2}`;
 	const eq_bsp = `\\text{Bsp}(i)=\\frac{T_i^s+T_{i+1}^s}{2}`;
 	const eq_bsm = `\\text{Bsm}(i)=\\frac{T_i^s+T_{i-1}^s}{2}`;
+
+	const transmissivityDef = "Some Definition Goes Here :-)";
+	const steadyStateDef = "Some OTHER def goes here";
+	const hydraulicHeadDef = "Yet another def";
 	
 	return (
 		<Container maxWidth="lg">
 			<Paper className={classes.root}>
+				<Popover
+					id={id}
+					open={open}
+					anchorEl={anchorEl}
+					onClose={handlePopoverClose}
+					anchorOrigin={{
+						vertical: 'bottom',
+						horizontal: 'center',
+					}}
+					transformOrigin={{
+						vertical: 'top',
+						horizontal: 'center',
+					}}
+				>
+					<Typography>{definition}</Typography>
+				</Popover>
 				<Box textAlign="left">
 					<MathJax.Provider>
 						<Typography variant="h1">
@@ -66,16 +141,16 @@ export default function Equations(props) {
             <Equation tex={eq1} equationNumber="1"/>
 						<Equation tex={eq2} equationNumber="2"/>
 						<Typography>
-							where <MathJax.Node inline formula={'T^f'}/> is the freshwater transmissivity <MathJax.Node inline formula={'(T^f = [K^f(h-z)])'}/>, <MathJax.Node inline formula={'T^s'}/> is the saltwater transmissivity <MathJax.Node inline formula={'(T^s = abs[-1000 - z]K^s)'}/>, <MathJax.Node inline formula={'\\rho_s'}/> is salt water density, 			<MathJax.Node inline formula={'\\rho_f'}/> is freshwater density, <MathJax.Node inline formula={'h'}/> is water table elevation, <MathJax.Node inline formula={'z'}/>  is interface position, <MathJax.Node inline formula={'x'}/>  is lateral distance, <MathJax.Node inline formula={'Q_p'}/>  is the pumping rate, <MathJax.Node inline formula={'K^s'}/>  is the salt water hydraulic conductivity and <MathJax.Node inline formula={'K^f'}/>  is the freshwater hydraulic conductivity, and <MathJax.Node inline formula={'R'}/>  is the recharge rate. Recharge is precipitation minus evapotranspiration. Evapotranspiration is the amount of water removed from the soil by plants and direct evaporation of moisture near the land surface.
+							where <MathJax.Node inline formula={'T^f'}/> is the freshwater <Definition onClick={(event) => handlePopoverClick(event, transmissivityDef)}>transmissivity</Definition> <MathJax.Node inline formula={'(T^f = [K^f(h-z)])'}/>, <MathJax.Node inline formula={'T^s'}/> is the saltwater transmissivity <MathJax.Node inline formula={'(T^s = abs[-1000 - z]K^s)'}/>, <MathJax.Node inline formula={'\\rho_s'}/> is salt water density, <MathJax.Node inline formula={'\\rho_f'}/> is freshwater density, <MathJax.Node inline formula={'h'}/> is water table elevation, <MathJax.Node inline formula={'z'}/>  is interface position, <MathJax.Node inline formula={'x'}/>  is lateral distance, <MathJax.Node inline formula={'Q_p'}/>  is the pumping rate, <MathJax.Node inline formula={'K^s'}/>  is the salt water hydraulic conductivity and <MathJax.Node inline formula={'K^f'}/>  is the freshwater hydraulic conductivity, and <MathJax.Node inline formula={'R'}/>  is the recharge rate. Recharge is precipitation minus evapotranspiration. Evapotranspiration is the amount of water removed from the soil by plants and direct evaporation of moisture near the land surface.
 						</Typography>
 						<Typography variant="h2">Initial Conditions</Typography>
 						<Typography>
-							While this is a steady-state problem, we have to assign initial guesses of the values of <MathJax.Node inline formula={'h(x)'}/> and <MathJax.Node inline formula={'z(x)'}/>. We initial guesses are:
+							While this is <Definition onClick={(event) => handlePopoverClick(event, steadyStateDef)}>steady-state</Definition> problem, we have to assign initial guesses of the values of <MathJax.Node inline formula={'h(x)'}/> and <MathJax.Node inline formula={'z(x)'}/>. We initial guesses are:
 						</Typography>
 						<MathJax.Node formula={'h(x) = 0m'}/>
 						<MathJax.Node formula={'z(x) = -50m'}/> 
 						<Typography>
-							Boundary conditions at the coastlines for hydraulic head <MathJax.Node inline formula={'(h)'}/> and the position of the freshwater-saltwater interface <MathJax.Node inline formula={'(z)'}/> are given by:
+							Boundary conditions at the coastlines for <Definition onClick={(event) => handlePopoverClick(event, hydraulicHeadDef)}>hydraulic head</Definition> <MathJax.Node inline formula={'(h)'}/> and the position of the freshwater-saltwater interface <MathJax.Node inline formula={'(z)'}/> are given by:
 						</Typography>
 						<MathJax.Node formula={'h(x=0) = h(x=L) = 0 m'}/> 
 						<MathJax.Node formula={'z(x=0) = z(x=L) = \\frac{-\\rho_f T_f \\frac{\\partial h}{\\partial x}}{K_f (\\rho_s - \\rho_f)}'}/>
@@ -192,13 +267,80 @@ export default function Equations(props) {
 									</Box>
 								</Container>
 							<Typography>
-								four nodes (boundary conditions imposed) is shown in Figure 2. The code uses transmissivity with is the product of saturated thickness (the difference between <MathJax.Node inline formula={'h(x)-z(x)'}/>) times the hydraulic conductivity. And illustration of how the saturated thickness changes with each iteration is shown in Figure 3.
+								four nodes (boundary conditions imposed) is shown in Figure 2. The code uses transmissivity with is the product of saturated thickness (the difference between <MathJax.Node inline formula={'h(x)-z(x)'}/>) times the hydraulic conductivity. An illustration of how the saturated thickness changes with each iteration is shown in Figure 3. An interactive model is shown in Figure 4.
 							</Typography>
 							<Container maxWidth="md">
 								<Box textAlign="center" alignItems="center">
 									<img className={classes.image} src={InterfaceChanges} alt="Changes in saturated thickness (h(x)-z(x))with iteration level."/>
 									<Typography variant="caption">
 										<b>Figure 3.</b> Changes in saturated thickness <MathJax.Node inline formula={"(h(x)-z(x))"}/> with iteration level.
+									</Typography>
+								</Box>
+							</Container>
+							<Container maxWidth="md">
+								<Box textAlign="center" alignItems="center">
+								<Line data={{
+											labels: calculatedData == null ? null : calculatedData[0],
+											datasets: [
+												{
+													data: calculatedData == null ? null : calculatedData[2][currentIteration],
+													fill: 'bottom',
+													label: "Seawater",
+													backgroundColor: '#ffab55'
+												},
+												{
+													data: calculatedData == null ? null : calculatedData[1][currentIteration],
+													fill: 0,
+													label: "Fresh Water",
+													backgroundColor: '#72a9e1'
+												}
+											]
+								
+											}} title="Freshwater/Saltwater Interface" options={
+											{
+												scales: {
+														yAxes: [{
+															scaleLabel: {
+																display: true,
+																labelString: "Elevation (m)"
+															},
+															ticks: {
+																	suggestedMin: minY, 
+																	suggestedMax: maxY
+																}
+														}],
+														xAxes: [{
+															scaleLabel: {
+																display: true,
+																labelString: "Distance (m)"
+															},
+															ticks: {
+																suggestedMin: minX,
+																suggestedMax: maxX
+														}
+														}]
+												},
+												title: {
+													display: true,
+													test: ''
+												},
+												legend: {
+													onClick: (e) => e.stopPropagation(),
+													labels: {
+														usePointStyle: true
+													}
+												}
+										}}/>
+									<ValueSlider
+										title="Iteration: Change which iteration is displayed"
+										min={0}
+										valueLabelDisplay="auto"
+										max={9}
+										value={currentIteration}
+										onChange={handleIterationChange}
+									/>
+									<Typography variant="caption">
+										<b>Figure 4.</b> Changes in saturated thickness <MathJax.Node inline formula={"(h(x)-z(x))"}/> with interactive iterations.
 									</Typography>
 								</Box>
 							</Container>

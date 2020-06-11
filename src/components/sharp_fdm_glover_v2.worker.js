@@ -243,36 +243,6 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		}
 	}
 	return [x, hh, zz]
-/*
-   % position of interface is controlled by this flux calculation
-   % if there is less recharge, the interface will approach the elevation
-   % of the water table (h=0 at the two sides of the model)
-   
-	
-
-
-/*
-figure(1)
-
-for it=1:Iter
-plot(x,hh(:,it));
-hold on
-plot(x,zz(:,it));
-pause(0.1)
-end
-
-figure(2)
-plot(x,hh(:,Iter));  % plot final iteration
-hold on
-plot (x,zz(:,Iter))
-% end
-
-
-xlabel('Distance (m)')
-ylabel(' Elevation (m)') 
-legend('water table elev.(m)','saltwater-freshwater interface')
-*/ 
-
 
 }
 

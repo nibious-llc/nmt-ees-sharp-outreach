@@ -26,9 +26,14 @@ const useStyles = makeStyles((theme) => ({
 export default function Body(props) {
 	const classes = useStyles();
 	const [tabValue, setTabValue] = React.useState(0);
+	const [calculatedData, setCalculatedData] = React.useState(null);
 
 	function handleTabOnChange(event, newValue) {
 		setTabValue(newValue);
+	}
+
+	function storeCalculatedData(data) {
+		setCalculatedData(data);
 	}
 
 	return (
@@ -47,7 +52,7 @@ export default function Body(props) {
 				<HomeTab/>
 			</div>
 			<div hidden={tabValue !== 1}>
-				<InterfaceCalculator/>
+				<InterfaceCalculator OnUpdateData={storeCalculatedData}/>
 				<Paper className={classes.root}>
 					<Box textAlign="left">
 						<Typography variant="h1">
@@ -63,7 +68,7 @@ export default function Body(props) {
 				</Paper>
 			</div>
 			<div hidden={tabValue !== 2}>
-				<EquationTab/>
+				<EquationTab data={calculatedData}/>
 			</div>
 		</div>
 	);
