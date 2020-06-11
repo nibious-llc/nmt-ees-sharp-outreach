@@ -6,7 +6,6 @@ import MatrixPic from '../images/matrix.webp';
 import InterfaceChanges from '../images/InterfaceChanges.webp';
 import { useState, useEffect} from 'react';
 import MathJax from 'react-mathjax';
-import { min, max } from 'mathjs';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -69,10 +68,6 @@ export default function Equations(props) {
 	const [calculatedData, setCalculatedData] = useState(null);
 	const [currentIteration, setCurrentIteration] = useState(0);
 	const [definition, setDefinition] = useState("");
-	const [minY, setMinY] = useState(0);
-	const [maxY, setMaxY] = useState(0);
-	const [minX, setMinX] = useState(0);
-	const [maxX, setMaxX] = useState(0);
 	const [anchorEl, setAnchorEl] = React.useState(null);
 
 	function handleIterationChange(event, value) {
@@ -303,21 +298,13 @@ export default function Equations(props) {
 															scaleLabel: {
 																display: true,
 																labelString: "Elevation (m)"
-															},
-															ticks: {
-																	suggestedMin: minY, 
-																	suggestedMax: maxY
-																}
+															}
 														}],
 														xAxes: [{
 															scaleLabel: {
 																display: true,
 																labelString: "Distance (m)"
-															},
-															ticks: {
-																suggestedMin: minX,
-																suggestedMax: maxX
-														}
+															}
 														}]
 												},
 												title: {
