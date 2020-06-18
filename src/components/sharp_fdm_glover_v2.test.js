@@ -1,4 +1,4 @@
-import * as SharpInterface from '../../public/sharp_fdm_glover_v2.worker.js';
+import * as SharpInterface from './sharp_fdm_glover_v2.worker.js';
 
 
 describe("Testing Sharp Interface", () => {
@@ -26,7 +26,7 @@ describe("Testing Sharp Interface", () => {
 
 	it("return proper values", () => {
 		const [x, hh, zz] = SharpInterface.SharpInterface();
-		expect(zz.get([0,0])).toBe(-50);
+		expect(zz[0][0]).toBe(-50);
 		expect(zz.get([0,1])).toBeCloseTo(-35.96103749009004, 5)
 		expect(zz.get([0,2])).toBeCloseTo(-19.26155335475096, 5)
 		expect(zz.get([0,3])).toBeCloseTo(-16.02823424898521, 5)
