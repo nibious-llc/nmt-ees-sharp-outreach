@@ -1,20 +1,23 @@
 import {toBeDeepCloseTo} from 'jest-matcher-deep-close-to';
 expect.extend({toBeDeepCloseTo});
 
+/* eslint-disable  no-restricted-globals */
+import { zeros } from 'mathjs';
+
 import * as Data1 from './test_data1';
 import * as FlowCalc from './calc_flow';
 
 
-function convert2DArrayToSparse(a) {
+function convertMatrixToSparse(a) {
 
 	const sparse = new Array();
 	const n = new Array();
 	const m = new Array();
 
-	for(let i = 0; i < a.length; i++) {
-		for(let j = 0; j < a.length; j++) {
-			if(a[i][j] != 0) {
-				sparse.push(a[i][j]);
+	for(let i = 0; i < a.size()[0]; i++) {
+		for(let j = 0; j < a.size()[0]; j++) {
+			if(a.get([i,j]) != 0) {
+				sparse.push(a.get([i,j]));
 				n.push(i);
 				m.push(j);
 			}
@@ -24,17 +27,14 @@ function convert2DArrayToSparse(a) {
 	return [sparse, n, m];
 }
 
-function convertSparseTo2DArray(data, n, m, requestedSize) {
+function LoadSparseToMatrix(data, n, m, requestedSize) {
 	if(data.length !== n.length || n.length !== m.length) {
 		throw "Lengths are Different";
 	}
-	const output = new Array(requestedSize);
-	for(let i = 0; i < requestedSize; i++) {
-		output[i] = new Array(requestedSize).fill(0);
-	}
+	const output = zeros(requestedSize, requestedSize, 'sparse');
 	
 	for(let elementNumber = 0; elementNumber < n.length; elementNumber++) {
-		output[n[elementNumber]][m[elementNumber]] = data[elementNumber];
+		output.set([n[elementNumber], m[elementNumber]], data[elementNumber]);
 	}
 
 	return output;
@@ -88,7 +88,7 @@ describe("Testing Flow Vector Calculations", () => {
 		const [a] = FlowCalc.matrixSharp(Data1.getOutputBA(), Data1.getOutputCA(), Data1.getOutputNI(), Data1.getOutputNJ(), Data1.getOutputNK(), Data1.getOutputArea(), Data1.getOutputNNODE(), Data1.getOutputNELEM());
 		// Build sparse matrix from a, then compare those results with single calls.
 		// This is to optimize the tests. Otherwise they will take forever. Literally.
-		const [ a_sparse, a_n, a_m ] = convert2DArrayToSparse(a);
+		const [ a_sparse, a_n, a_m ] = convertMatrixToSparse(a);
 
 		expect(a_n.length).toBe(Data1.getOutputA_n_MatrixSharp().length);
 		expect(a_m.length).toBe(Data1.getOutputA_m_MatrixSharp().length);
@@ -100,13 +100,13 @@ describe("Testing Flow Vector Calculations", () => {
 	});
 
 	it("test apply_bc_sharp", () => {
-		const aa = convertSparseTo2DArray(Data1.getOutputA_MatrixSharp(), Data1.getOutputA_n_MatrixSharp(), Data1.getOutputA_m_MatrixSharp(), Data1.getOutputNNODE());
+		const aa = LoadSparseToMatrix(Data1.getOutputA_MatrixSharp(), Data1.getOutputA_n_MatrixSharp(), Data1.getOutputA_m_MatrixSharp(), Data1.getOutputNNODE());
 		const [a, b] = FlowCalc.applyBCSharp(aa, Data1.getH(), Data1.getOutputNNODE());
 	
 
 		// Build sparse matrix from a, then compare those results with single calls.
 		// This is to optimize the tests. Otherwise they will take forever. Literally.
-		const [ a_sparse, a_n, a_m ] = convert2DArrayToSparse(a);
+		const [ a_sparse, a_n, a_m ] = convertMatrixToSparse(a);
 
 		expect(a_n.length).toBe(Data1.getOutputA_n_ApplyBCSharp().length);
 		expect(a_m.length).toBe(Data1.getOutputA_m_ApplyBCSharp().length);
@@ -121,9 +121,29 @@ describe("Testing Flow Vector Calculations", () => {
 	});
 
 	it("test hfem", () => {
-		const a = convertSparseTo2DArray(Data1.getOutputA_ApplyBCSharp(), Data1.getOutputA_n_ApplyBCSharp(), Data1.getOutputA_m_ApplyBCSharp(), Data1.getOutputNNODE());
+		const a = LoadSparseToMatrix(Data1.getOutputA_ApplyBCSharp(), Data1.getOutputA_n_ApplyBCSharp(), Data1.getOutputA_m_ApplyBCSharp(), Data1.getOutputNNODE());
 		const b = Data1.getOutputB_ApplyBCSharp();
 		const hfem = FlowCalc.hfemCalc(a, b);
 		expect(hfem).toBeDeepCloseTo(Data1.getOutputHFEM(), 5);
+	});
+
+	it("test fluxSharp", () => {
+		const x = Data1.getOutputX();
+		const z = Data1.getOutputZ();
+		const ni = Data1.getOutputNI();
+		const nj = Data1.getOutputNJ();
+		const nk = Data1.getOutputNK();
+		const ba = Data1.getOutputBA();
+		const ca = Data1.getOutputCA();
+		const area = Data1.getOutputArea();
+		const hfem = Data1.getOutputHFEM();
+		const nelem = Data1.getOutputNELEM();
+
+		const [xc, zc, qx, qz] = FlowCalc.fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
+		expect(xc).toBeDeepCloseTo(Data1.getOutputXC(), 5);
+		expect(zc).toBeDeepCloseTo(Data1.getOutputZC(), 5);
+		expect(qx).toBeDeepCloseTo(Data1.getOutputQX(), 5);
+		expect(qz).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
+
 	});
 });

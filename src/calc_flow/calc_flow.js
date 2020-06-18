@@ -1,5 +1,5 @@
 /* eslint-disable  no-restricted-globals */
-import { lusolve, matrix, zeros} from 'mathjs';
+import { lusolve, flatten, zeros} from 'mathjs';
 
 
 const nrows = 21;
@@ -204,10 +204,8 @@ function areasSharp(x, z, ni, nj, nk, nelem) {
 }
 
 function matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem) {
-	const a = new Array(nnode);
-	for(let n = 0; n < nnode; n++) {
-		a[n] = new Array(nnode).fill(0);
-	}
+	const a = zeros(nnode, nnode, 'sparse');
+
 	const Kf = getKf();
 
 	for(let m = 0; m < nelem; m++) {
@@ -218,15 +216,15 @@ function matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem) {
 		const ar = 1/(4.0*area[m]);
 
 		// sum local conductance matrix and buoyancy vector
-		a[ii][ii] += ar*(Kf*ba[0][m]*ba[0][m]+Kf*ca[0][m]*ca[0][m]);
-    a[ii][jj] += ar*(Kf*ba[1][m]*ba[0][m]+Kf*ca[1][m]*ca[0][m]);
-    a[ii][kk] += ar*(Kf*ba[2][m]*ba[0][m]+Kf*ca[2][m]*ca[0][m]);
-    a[jj][ii] += ar*(Kf*ba[0][m]*ba[1][m]+Kf*ca[0][m]*ca[1][m]);
-    a[jj][jj] += ar*(Kf*ba[1][m]*ba[1][m]+Kf*ca[1][m]*ca[1][m]);
-    a[jj][kk] += ar*(Kf*ba[2][m]*ba[1][m]+Kf*ca[2][m]*ca[1][m]);
-    a[kk][ii] += ar*(Kf*ba[0][m]*ba[2][m]+Kf*ca[0][m]*ca[2][m]);
-    a[kk][jj] += ar*(Kf*ba[1][m]*ba[2][m]+Kf*ca[1][m]*ca[2][m]);
-		a[kk][kk] += ar*(Kf*ba[2][m]*ba[2][m]+Kf*ca[2][m]*ca[2][m]);
+		a.set([ii, ii], a.get([ii, ii]) + ar*(Kf*ba[0][m]*ba[0][m]+Kf*ca[0][m]*ca[0][m]));
+    a.set([ii, jj], a.get([ii, jj]) + ar*(Kf*ba[1][m]*ba[0][m]+Kf*ca[1][m]*ca[0][m]));
+    a.set([ii, kk], a.get([ii, kk]) + ar*(Kf*ba[2][m]*ba[0][m]+Kf*ca[2][m]*ca[0][m]));
+    a.set([jj, ii], a.get([jj, ii]) + ar*(Kf*ba[0][m]*ba[1][m]+Kf*ca[0][m]*ca[1][m]));
+    a.set([jj, jj], a.get([jj, jj]) + ar*(Kf*ba[1][m]*ba[1][m]+Kf*ca[1][m]*ca[1][m]));
+    a.set([jj, kk], a.get([jj, kk]) + ar*(Kf*ba[2][m]*ba[1][m]+Kf*ca[2][m]*ca[1][m]));
+    a.set([kk, ii], a.get([kk, ii]) + ar*(Kf*ba[0][m]*ba[2][m]+Kf*ca[0][m]*ca[2][m]));
+    a.set([kk, jj], a.get([kk, jj]) + ar*(Kf*ba[1][m]*ba[2][m]+Kf*ca[1][m]*ca[2][m]));
+		a.set([kk, kk], a.get([kk, kk]) + ar*(Kf*ba[2][m]*ba[2][m]+Kf*ca[2][m]*ca[2][m]));
 	}
 	return [a];
 }
@@ -239,15 +237,16 @@ function applyBCSharp(a, hFinal, nnode) {
 		const nnn = nrows * (l + 1) - 1;
 
 		for(let n = 0; n < nnode; n++) {
-			a[nnn][n] = 0;
+			a.set([nnn, n], 0);
 		}
 
 		for(let n = 0; n < nnode; n++) {
-			b[n] = b[n] - a[n][nnn] * hFinal[l];
-			a[n][nnn] = 0;
+			b[n] = b[n] - a.get([n,nnn]) * hFinal[l];
+			if(a.get([n, nnn]) !== 0) {
+				a.set([n, nnn], 0);
+			}
 		}
-
-		a[nnn][nnn] = 1;
+		a.set([nnn,nnn], 1);
 		b[nnn] = hFinal[l];	
 	}
 	return [a, b];
@@ -255,9 +254,34 @@ function applyBCSharp(a, hFinal, nnode) {
 
 // hfem = a\b; % solve the system of equations
 function hfemCalc(a, b) {
-	return lusolve(a, b);
+	return flatten(lusolve(a, b)).toArray();
 }
 
+
+function fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem) {
+	const qx = new Array(nelem).fill(0);
+	const qz = new Array(nelem).fill(0);
+	const xc = new Array(nelem);
+	const zc = new Array(nelem);
+
+	for(let m = 0; m < nelem; m++) {
+		const ar = 1/(2.0*area[m]);
+
+		const kxe = getKf();
+		const kze = getKf();
+
+		const node = [ni[m], nj[m], nk[m]];
+
+		for(let n = 0; n < 3; n++) {
+			qx[m] =  qx[m] - ar*kxe*ba[n][m]*hfem[node[n]];
+			qz[m] =  qz[m] - ar*kze*ca[n][m]*hfem[node[n]];
+		}
+
+		xc[m] = (x[ni[m]]+x[nj[m]]+x[nk[m]])/3;
+		zc[m] = (z[ni[m]]+z[nj[m]]+z[nk[m]])/3;
+	}
+	return [xc, zc, qx, qz];
+}
 
 export function main(hFinal, zFinal) {
 	const [x, z, ni, nj, nk, nnode, nelem] = generateMesh(hFinal, zFinal);
@@ -265,10 +289,10 @@ export function main(hFinal, zFinal) {
 	const [aa] = matrixSharp(ba, ca, ni, nj, nk, area, nnode);
 	const [a, b] = applyBCSharp(aa,hFinal, nnode);
 	const hfem = hfemCalc(a, b);
-
+	const [xc, zc, qx, qz] = fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
 }
 
 
 if(process.env.NODE_ENV == "test") {
-	module.exports =  {main, generateMesh, areasSharp, matrixSharp, applyBCSharp, hfemCalc}
+	module.exports =  {main, generateMesh, areasSharp, matrixSharp, applyBCSharp, hfemCalc, fluxSharp}
 } 
