@@ -146,4 +146,13 @@ describe("Testing Flow Vector Calculations", () => {
 		expect(qz).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
 
 	});
+
+	it("test main method", () => {
+		const [hfem, xc, zc, qx, qz] = FlowCalc.main(Data1.getH(), Data1.getZ());
+		expect(hfem).toBeDeepCloseTo(Data1.getOutputHFEM(), 5);
+		expect(xc).toBeDeepCloseTo(Data1.getOutputXC(), 5);
+		expect(zc).toBeDeepCloseTo(Data1.getOutputZC(), 5);
+		expect(qx).toBeDeepCloseTo(Data1.getOutputQX(), 5);
+		expect(qz).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
+	});
 });

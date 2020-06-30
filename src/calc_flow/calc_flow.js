@@ -209,12 +209,13 @@ function matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem) {
 	const Kf = getKf();
 
 	for(let m = 0; m < nelem; m++) {
+		
 		const ii = ni[m];
 		const jj = nj[m];
 		const kk = nk[m];
 
 		const ar = 1/(4.0*area[m]);
-
+		zeros
 		// sum local conductance matrix and buoyancy vector
 		a.set([ii, ii], a.get([ii, ii]) + ar*(Kf*ba[0][m]*ba[0][m]+Kf*ca[0][m]*ca[0][m]));
     a.set([ii, jj], a.get([ii, jj]) + ar*(Kf*ba[1][m]*ba[0][m]+Kf*ca[1][m]*ca[0][m]));
@@ -238,9 +239,6 @@ function applyBCSharp(a, hFinal, nnode) {
 
 		for(let n = 0; n < nnode; n++) {
 			a.set([nnn, n], 0);
-		}
-
-		for(let n = 0; n < nnode; n++) {
 			b[n] = b[n] - a.get([n,nnn]) * hFinal[l];
 			if(a.get([n, nnn]) !== 0) {
 				a.set([n, nnn], 0);
@@ -286,13 +284,24 @@ function fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem) {
 export function main(hFinal, zFinal) {
 	const [x, z, ni, nj, nk, nnode, nelem] = generateMesh(hFinal, zFinal);
 	const [ba, ca, area] = areasSharp(x, z, ni, nj, nk, nelem);
-	const [aa] = matrixSharp(ba, ca, ni, nj, nk, area, nnode);
-	const [a, b] = applyBCSharp(aa,hFinal, nnode);
+	const [aa] = matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem);
+	const [a, b] = applyBCSharp(aa, hFinal, nnode);
 	const hfem = hfemCalc(a, b);
 	const [xc, zc, qx, qz] = fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
+	return [hfem, xc, zc, qx, qz];
 }
 
 
 if(process.env.NODE_ENV == "test") {
 	module.exports =  {main, generateMesh, areasSharp, matrixSharp, applyBCSharp, hfemCalc, fluxSharp}
 } 
+
+self.onmessage = async (e) => {
+	if (!e) return;
+
+	const h = e.data[0];
+	const z = e.data[1];
+
+	const result = main(h, z);
+	self.postMessage({type: 'results', data: result});
+};
