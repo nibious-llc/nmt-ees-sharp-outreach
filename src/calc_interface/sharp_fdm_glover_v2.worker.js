@@ -6,13 +6,11 @@ import { lusolve, matrix, zeros} from 'mathjs';
 function initIterationLoop(Nx, delx) {
 	let xx = 0.0;
 	const x = new Array(Nx)
-	const h = new Array(Nx)
-	const z = new Array(Nx)
+	const h = new Array(Nx).fill(0);
+	const z = new Array(Nx).fill(-50.0);
 	for (let i = 0; i < Nx; i++) {
 		x[i] = xx;
 		xx = xx+delx;
-		h[i] = 0.0;
-		z[i] = -50.0;
 	}
 	return [x, h, z];
 }
@@ -106,9 +104,6 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 
 	const Kf = k*rho_f*grav/vis_f*3600*24;
 	const Ks = k*rho_s*grav/vis_s*3600*24;
-
-	const qf_glover1 = matrix();
-	const qf_glover2 = matrix();
 
 	const D = rho_f/rho_s;
 	const Rr = (rho_s-rho_f)/rho_s;
@@ -216,7 +211,6 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 
 		//hz =a\b;
 		const hz = lusolve(a, b);
-
 	
 		ic = 1;
 		for (let n = 0; n < Nx2+ 2; n = n + 2) {
@@ -224,20 +218,14 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 			z[ic] = hz.get([n + 1,0]);
 			ic=ic+1;
 		}
-	
 
-		qf_glover1.set([it, 0], rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx);
-		qf_glover2.set([it, 0],rho_f*Tf[Nx - 1] *(h[Nx-2] - h[Nx -1])/Kf/(rho_s-rho_f)/delx); 
-
-
-		z[0] = 0 -  qf_glover1.get([it, 0]);
-		z[Nx - 1] = 0 -  qf_glover2.get([it, 0]);
-
-		
 		for(let n = 0; n < Nx; n++) {
 			hh[it][n] = h[n];
 			zz[it][n] = z[n];
 		}
+
+		z[0] = 0 -  rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx;
+		z[Nx - 1] = 0 -  rho_f*Tf[Nx - 1] *(h[Nx - 2] - h[Nx - 1])/Kf/(rho_s-rho_f)/delx;	
 	}
 	
 	const elements = new Array(x.length);
