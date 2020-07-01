@@ -6,7 +6,7 @@ import { Paper, Typography, Grid, CircularProgress, Switch, FormGroup, FormContr
 import { Line } from 'react-chartjs-2';
 import SliderForm from './SliderForm';
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import SharpInterfaceWorker from 'workerize-loader!./sharp_fdm_glover_v2.worker';
+import SharpInterfaceWorker from 'workerize-loader!../calc_interface/sharp_fdm_glover_v2.worker';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import FlowWorker from 'workerize-loader!../calc_flow/calc_flow';
 
