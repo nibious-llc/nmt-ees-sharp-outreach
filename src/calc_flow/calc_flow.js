@@ -14,8 +14,7 @@ function getKf() {
 	return k*rho_f*grav/vis_f*3600*24;
 }
 
-function generateMesh(hcol, zcol) {
-	const delx = 60;
+function generateMesh(delx, hcol, zcol) {
 	let ic = 0;
 	let xx = -1 * delx;
 
@@ -37,136 +36,25 @@ function generateMesh(hcol, zcol) {
 	
 	let nn = 0;
 	let ne = 0;
-	const ni = new Array();
-	const nj = new Array();
-	const nk = new Array();
-
+	const ni = [];
+	const nj = [];
+	const nk = [];
 
 	for(let m = 0; m < ncols - 1; m++) {
-		let nc1 = nrows;
-		let nc2 = nrows;
-
-		// %%%%%%%%%%%%%%%%%%%%%%% Case #1  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		if(nc1 < nc2) {
-			for(let i = 0; i < nc1 - 1; i++) {
-				ni[ne] = nn;
-				nj[ne] = ni[ne] + nc1;
-				nk[ne] = nj[ne] + 1;
-				nn = nn + 1;
-				ne = ne + 1;
-				
-				
-				ni[ne] = ni[ne - 1];
-				nj[ne] = nj[ne - 1] + 1;
-				nk[ne] = ni[ne] + 1;
-				ne = ne + 1;
-			}
-			
+		for(let i = 0; i < nrows - 1; i++) {
 			ni[ne] = nn;
-			nj[ne] = ni[ne] + nc1;
-			nk[ne] = nj[ne] + 1;
+			nj[ne] = ni[ne] + nrows;
+			nk[ne] = ni[ne] + 1;
 			nn = nn + 1;
+			ne = ne + 1;
+			
+			
+			ni[ne] = ni[ne-1] + 1;
+			nj[ne] = nj[ne-1];
+			nk[ne] = nj[ne]+ 1;
 			ne = ne + 1;
 		}
-
-
-		// %%%%%%%%%%%%%%%%%%%%%%% Case #2  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		if(nc1 === nc2) {
-			for(let i = 0; i < nc1 - 1; i++) {
-				
-        ni[ne] = nn;
-        nj[ne] = ni[ne] + nc1;
-				nk[ne] = ni[ne] + 1;
-				nn = nn + 1;
-        ne = ne + 1;
-        
-        
-        ni[ne] = ni[ne-1] + 1;
-        nj[ne] = nj[ne-1];
-				nk[ne] = nj[ne]+ 1;
-				ne = ne + 1;
-			}
-			nn = nn + 1;
-		}
-
-
-		// %%%%%%%%%%%%%%%%%%%%%%% Case #3  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		if( nc1 > nc2) {
-			
-			let i1 = nn;
-			let j1 = nn + nc1;
-			let k1 = i1 + 1;
-	 
-			// set i,j,k for lower two elements
-	
-			ni[ne] = i1;
-			nj[ne] = j1;
-			nk[ne] = k1;
-			ne = ne + 1;
-			nn = nn + 1;
-	
-			
-			 
-			i2 = j1;
-			j2 = j1 + 1;
-			k2 = k1;
-	
-	
-			ni[ne] = i2;
-			nj[ne] = j2;
-			nk[ne] = k2;
-			ne = ne + 1;
-
-			// now permute up the first elemental column
-
-			const nend = 2 * (nc2 - 1)/2 - 1;
-		
-			for(let nr = 0; nr < nend; nr++) {
-				
-				 
-				i1 = i1 + 1;
-				j1 = j1 + 1;
-				k1 = k1 + 1;
-			
- 
-				ni[ne] = i1;
-				nj[ne] = j1;
-				nk[ne] = k1;
-
-				ne = ne + 1;
-
-				i2 = i2 + 1;
-				j2 = j2 + 1;
-				k2 = k2 + 1;
-
-				
-
-				ni[ne]= i2;
-				nj[ne]= j2;
-				nk[ne]= k2;
-
-				ne = ne + 1;
-			}
-
-			// now do the top extra element
-
-			
-			
-			i1 = i1 + 1;
-			j1 = j1 + 1;
-			k1 = k1 + 1;
-		
-
-			ni[ne] = i1;
-			nj[ne] = j1;
-			nk[ne] = k1;   
-		
-			nn = nk[ne];
-			ne = ne + 1;
-		} 
+		nn = nn + 1;
 	}
 
 	nn = nn + nrows;
@@ -215,7 +103,7 @@ function matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem) {
 		const kk = nk[m];
 
 		const ar = 1/(4.0*area[m]);
-		zeros
+
 		// sum local conductance matrix and buoyancy vector
 		a.set([ii, ii], a.get([ii, ii]) + ar*(Kf*ba[0][m]*ba[0][m]+Kf*ca[0][m]*ca[0][m]));
     a.set([ii, jj], a.get([ii, jj]) + ar*(Kf*ba[1][m]*ba[0][m]+Kf*ca[1][m]*ca[0][m]));
@@ -257,10 +145,7 @@ function hfemCalc(a, b) {
 
 
 function fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem) {
-	const qx = new Array(nelem).fill(0);
-	const qz = new Array(nelem).fill(0);
-	const xc = new Array(nelem);
-	const zc = new Array(nelem);
+	const elements = new Array(nelem);
 
 	for(let m = 0; m < nelem; m++) {
 		const ar = 1/(2.0*area[m]);
@@ -270,38 +155,41 @@ function fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem) {
 
 		const node = [ni[m], nj[m], nk[m]];
 
+		let qx = 0;
+		let qz = 0;
 		for(let n = 0; n < 3; n++) {
-			qx[m] =  qx[m] - ar*kxe*ba[n][m]*hfem[node[n]];
-			qz[m] =  qz[m] - ar*kze*ca[n][m]*hfem[node[n]];
+			qx =  qx - ar*kxe*ba[n][m]*hfem[node[n]];
+			qz =  qz - ar*kze*ca[n][m]*hfem[node[n]];
 		}
-
-		xc[m] = (x[ni[m]]+x[nj[m]]+x[nk[m]])/3;
-		zc[m] = (z[ni[m]]+z[nj[m]]+z[nk[m]])/3;
+		const xc = (x[ni[m]]+x[nj[m]]+x[nk[m]])/3;
+		const zc = (z[ni[m]]+z[nj[m]]+z[nk[m]])/3;
+		elements[m] = { point: {x: xc, y: zc}, qx: qx, qz: qz};
 	}
-	return [xc, zc, qx, qz];
+	return [elements];
 }
 
-export function main(hFinal, zFinal) {
-	const [x, z, ni, nj, nk, nnode, nelem] = generateMesh(hFinal, zFinal);
+export function main(delx, hFinal, zFinal) {
+	const [x, z, ni, nj, nk, nnode, nelem] = generateMesh(delx, hFinal, zFinal);
 	const [ba, ca, area] = areasSharp(x, z, ni, nj, nk, nelem);
 	const [aa] = matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem);
 	const [a, b] = applyBCSharp(aa, hFinal, nnode);
 	const hfem = hfemCalc(a, b);
-	const [xc, zc, qx, qz] = fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
-	return [hfem, xc, zc, qx, qz];
+	const [elements] = fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
+	return [hfem, elements];
 }
 
 
-if(process.env.NODE_ENV == "test") {
+if(process.env.NODE_ENV === "test") {
 	module.exports =  {main, generateMesh, areasSharp, matrixSharp, applyBCSharp, hfemCalc, fluxSharp}
 } 
 
 self.onmessage = async (e) => {
 	if (!e) return;
 
-	const h = e.data[0];
-	const z = e.data[1];
+	const delx = e.data[0];
+	const h = e.data[1];
+	const z = e.data[2];
 
-	const result = main(h, z);
+	const result = main(delx, h, z);
 	self.postMessage({type: 'results', data: result});
 };

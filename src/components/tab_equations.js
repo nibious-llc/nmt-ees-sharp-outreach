@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper, Typography, Container, Box, Grid, ButtonBase} from '@material-ui/core';
+import SliderForm from './SliderForm';
 import NumericSchematic from '../images/numeric_schematic.webp';
 import MatrixPic from '../images/matrix.webp';
 import InterfaceChanges from '../images/InterfaceChanges.webp';
@@ -13,7 +14,6 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { Line } from 'react-chartjs-2';
-import ValueSlider from './slider';
 import Popover from '@material-ui/core/Popover';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
@@ -30,9 +30,21 @@ const useStyles = makeStyles((theme) => ({
 	},
 	definitionButton: {
 		...theme.typography
+	},
+	formControlLabel: {
+		marginLeft: theme.spacing(2),
+		marginRight: theme.spacing(2),
+		marginBottom: theme.spacing(2),
+		marginTop: 0
+	},
+	formLabel: {
+		textAlign: 'left',
+		color: "black",
+		marginLeft: theme.spacing(2),
+		marginRight: theme.spacing(2),
+		marginBottom: 0
 	}
 }));
-
 
 function Equation(props) {
 
@@ -318,14 +330,17 @@ export default function Equations(props) {
 													}
 												}
 										}}/>
-									<ValueSlider
-										title="Iteration: Change which iteration is displayed"
-										min={0}
-										valueLabelDisplay="auto"
-										max={9}
-										value={currentIteration}
-										onChange={handleIterationChange}
-									/>
+										
+										
+											<SliderForm
+												title="Iteration: Change which iteration is displayed"
+												min={0}
+												valueLabelDisplay="auto"
+												max={9}
+												value={currentIteration}
+												onChange={handleIterationChange}
+											/>
+										
 									<Typography variant="caption">
 										<b>Figure 4.</b> Changes in saturated thickness <MathJax.Node inline formula={"(h(x)-z(x))"}/> with interactive iterations.
 									</Typography>

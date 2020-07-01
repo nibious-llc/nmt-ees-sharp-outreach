@@ -44,7 +44,7 @@ function LoadSparseToMatrix(data, n, m, requestedSize) {
 
 describe("Testing Flow Vector Calculations", () => {
 	it("Test Mesh Generation", () => {
-		const [x, z, ni, nj, nk, nnode, nelem] = FlowCalc.generateMesh(Data1.getH(), Data1.getZ());
+		const [x, z, ni, nj, nk, nnode, nelem] = FlowCalc.generateMesh(60, Data1.getH(), Data1.getZ());
 		expect(nnode).toBe(Data1.getOutputNNODE());
 		expect(nelem).toBe(Data1.getOutputNELEM());
 
@@ -139,20 +139,20 @@ describe("Testing Flow Vector Calculations", () => {
 		const hfem = Data1.getOutputHFEM();
 		const nelem = Data1.getOutputNELEM();
 
-		const [xc, zc, qx, qz] = FlowCalc.fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
-		expect(xc).toBeDeepCloseTo(Data1.getOutputXC(), 5);
-		expect(zc).toBeDeepCloseTo(Data1.getOutputZC(), 5);
-		expect(qx).toBeDeepCloseTo(Data1.getOutputQX(), 5);
-		expect(qz).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
+		const [elements] = FlowCalc.fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
+		expect(elements.map(x => x.point.x)).toBeDeepCloseTo(Data1.getOutputXC(), 5);
+		expect(elements.map(x => x.point.y)).toBeDeepCloseTo(Data1.getOutputZC(), 5);
+		expect(elements.map(x => x.qx)).toBeDeepCloseTo(Data1.getOutputQX(), 5);
+		expect(elements.map(x => x.qz)).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
 
 	});
 
 	it("test main method", () => {
-		const [hfem, xc, zc, qx, qz] = FlowCalc.main(Data1.getH(), Data1.getZ());
+		const [hfem, elements] = FlowCalc.main(60, Data1.getH(), Data1.getZ());
 		expect(hfem).toBeDeepCloseTo(Data1.getOutputHFEM(), 5);
-		expect(xc).toBeDeepCloseTo(Data1.getOutputXC(), 5);
-		expect(zc).toBeDeepCloseTo(Data1.getOutputZC(), 5);
-		expect(qx).toBeDeepCloseTo(Data1.getOutputQX(), 5);
-		expect(qz).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
+		expect(elements.map(x => x.point.x)).toBeDeepCloseTo(Data1.getOutputXC(), 5);
+		expect(elements.map(x => x.point.y)).toBeDeepCloseTo(Data1.getOutputZC(), 5);
+		expect(elements.map(x => x.qx)).toBeDeepCloseTo(Data1.getOutputQX(), 5);
+		expect(elements.map(x => x.qz)).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
 	});
 });

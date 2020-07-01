@@ -61,10 +61,6 @@ function validateUserInput(delx, k, Rech, Qp, nQp) {
 	return true;
 }
 
-
-
-
-
 /**
  * Calculate the Sharp Interface with given inputs
  * @param {double} delx m: controls size of grid; perhaps vary between 30m to 120m
@@ -177,7 +173,7 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 			a.set([n, n+2], -1 * Bfp[ic]);
 			b.set([n, 0], Rech*Math.pow(delx, 2));
 
-			if (ic == nQp - 1) {
+			if (ic === nQp - 1) {
 				b.set([n, 0], b.get([n,0]) - Qp*Math.pow(delx, 2));
 			}
 			ic = ic+1;
@@ -221,14 +217,14 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		//hz =a\b;
 		const hz = lusolve(a, b);
 
-		{
-			ic = 1;
-			for (let n = 0; n < Nx2+ 2; n = n + 2) {
-				h[ic] = hz.get([n,0]);
-				z[ic] = hz.get([n + 1,0]);
-				ic=ic+1;
-			}
+	
+		ic = 1;
+		for (let n = 0; n < Nx2+ 2; n = n + 2) {
+			h[ic] = hz.get([n,0]);
+			z[ic] = hz.get([n + 1,0]);
+			ic=ic+1;
 		}
+	
 
 		qf_glover1.set([it, 0], rho_f*Tf[0] *(h[1]-h[0])/Kf/(rho_s-rho_f)/delx);
 		qf_glover2.set([it, 0],rho_f*Tf[Nx - 1] *(h[Nx-2] - h[Nx -1])/Kf/(rho_s-rho_f)/delx); 
@@ -237,17 +233,24 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		z[0] = 0 -  qf_glover1.get([it, 0]);
 		z[Nx - 1] = 0 -  qf_glover2.get([it, 0]);
 
+		
 		for(let n = 0; n < Nx; n++) {
 			hh[it][n] = h[n];
 			zz[it][n] = z[n];
 		}
 	}
-	return [x, hh, zz]
+	
+	const elements = new Array(x.length);
+	for(let n = 0; n < Nx; n++) {
+		elements[n] = {x: x[n], h: h[n], z: z[n]}
+	}	
+
+	return [x, hh, zz, elements]
 
 }
 
 
-if(process.env.NODE_ENV == "test") {
+if(process.env.NODE_ENV === "test") {
 	module.exports =  {SharpInterface,initIterationLoop, validateUserInput, calculateTransmissivities}
 } 
 
