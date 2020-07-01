@@ -47,9 +47,8 @@ const useStyles = makeStyles((theme) => ({
 const calcSharpInterfaceUpdatingText = "Calculating Sharp Interface..."
 
 export default function InterfaceCalculator(props) {
-	const sharpInterfaceWorker = SharpInterfaceWorker();
-	const flowWorker = FlowWorker();
-	
+	const [sharpInterfaceWorker, setSharpInterfaceWorker] = useState(null);
+	const [flowWorker, setFlowWorker] = useState(null);
 	const [delx, setDelx] = useState(60);
 	const [k, setK] = useState(-11);
 	const [Rech, setRech] = useState(0.009);
@@ -67,19 +66,52 @@ export default function InterfaceCalculator(props) {
 	const [maxX, setMaxX] = useState(0);
 	const [errorText, setErrorText] = useState(null);
 	const classes = useStyles();
-
+	
 	function handleSwitchOnChange(event) {
 		setCalculateFlowVectors(event.target.checked);
 		// If it hasn't been calculated, calculate it right now
-		if(calculatedFlowData === null) {
+		if(calculatedFlowData === null && event.target.checked) {
 			calcFlowVectors(delx, calculatedData.map(x => x.h), calculatedData.map(x => x.z))
 		}
 	}
 
+	useEffect(() => {
+		setSharpInterfaceWorker(SharpInterfaceWorker());
+		setFlowWorker(FlowWorker());
+
+		// Cleanup Function
+		return function () {
+			sharpInterfaceWorker.terminate();
+			flowWorker.terminate();
+		};
+	// eslint-disable-next-line react-hooks/exhaustive-deps,
+	}, []);
+
+
+	useEffect(() => {
+		if(sharpInterfaceWorker !== null) {
+			sharpInterfaceWorker.onmessage = (message) => {
+				if(message.data.type === 'results' ) {
+					generateGraph(message.data.data);
+				}
+			}
+		}
+		
+		if(flowWorker !== null) {
+			flowWorker.onmessage= (message) => {
+				if(message.data.type === 'results' ) {
+					setCalculatedFlowData(message.data.data);
+					setUpdatingGraph(false);
+				}
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps,
+	}, [sharpInterfaceWorker, flowWorker, calculateFlowVectors]);
+
 	function calcFlowVectors(delx, h, z) {
-			flowWorker.postMessage([delx, h, z]);
-			setUpdatingGraph(true);
-			setUpdatingGraphText("Calculating Flow Vectors...");
+		flowWorker.postMessage([delx, h, z]);
+		setUpdatingGraph(true);
+		setUpdatingGraphText("Calculating Flow Vectors...");
 	}
 	
 	function calcInterface() {
@@ -119,25 +151,11 @@ export default function InterfaceCalculator(props) {
 	}
 
 	useEffect(() => {
-		sharpInterfaceWorker.onmessage = (message) => {
-			if(message.data.type === 'results' ) {
-				generateGraph(message.data.data);
-			}
+		if(sharpInterfaceWorker !== null) {
+			calcInterface();
 		}
-		flowWorker.onmessage= (message) => {
-			if(message.data.type === 'results' ) {
-				setCalculatedFlowData(message.data.data);
-				setUpdatingGraph(false);
-				console.log("Done Flow Calcs");
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps,
-	}, [sharpInterfaceWorker, flowWorker]);
-	
-	useEffect(() => {
-		calcInterface();
-		// eslint-disable-next-line react-hooks/exhaustive-deps,
-	}, [delx, k, Rech, Qp, nQp]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [sharpInterfaceWorker, delx, k, Rech, Qp, nQp]);
 
 	/**
 	 * Converts to degrees with the vertical flip

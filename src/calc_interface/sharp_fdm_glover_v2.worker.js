@@ -1,8 +1,6 @@
 /* eslint-disable  no-restricted-globals */
 import { lusolve, matrix, zeros} from 'mathjs';
 
-
-
 function initIterationLoop(Nx, delx) {
 	let xx = 0.0;
 	const x = new Array(Nx)
@@ -233,8 +231,7 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		elements[n] = {x: x[n], h: h[n], z: z[n]}
 	}	
 
-	return [x, hh, zz, elements]
-
+	return [x, hh, zz, elements];
 }
 
 
