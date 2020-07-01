@@ -139,7 +139,7 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 
 		const Nx2 = 2 * Nx - 6;
 
-		const a = matrix(zeros(Nx2, Nx2))
+		const a = matrix(zeros(Nx2, Nx2), 'sparse')
 		const b = matrix(zeros(Nx2, 1))
 	
 		// populate first two unknowns associated with boundary conditions

@@ -87,28 +87,13 @@ export default function InterfaceCalculator(props) {
 	// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, []);
 
-
-	useEffect(() => {
-		if(sharpInterfaceWorker !== null) {
-			sharpInterfaceWorker.onmessage = (message) => {
-				if(message.data.type === 'results' ) {
-					generateGraph(message.data.data);
-				}
-			}
-		}
-		
-		if(flowWorker !== null) {
-			flowWorker.onmessage= (message) => {
-				if(message.data.type === 'results' ) {
-					setCalculatedFlowData(message.data.data);
-					setUpdatingGraph(false);
-				}
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps,
-	}, [sharpInterfaceWorker, flowWorker, calculateFlowVectors]);
-
 	function calcFlowVectors(delx, h, z) {
+		flowWorker.onmessage= (message) => {
+			if(message.data.type === 'results' ) {
+				setCalculatedFlowData(message.data.data);
+				setUpdatingGraph(false);
+			}
+		}
 		flowWorker.postMessage([delx, h, z]);
 		setUpdatingGraph(true);
 		setUpdatingGraphText("Calculating Flow Vectors...");
@@ -152,7 +137,13 @@ export default function InterfaceCalculator(props) {
 
 	useEffect(() => {
 		if(sharpInterfaceWorker !== null) {
+			sharpInterfaceWorker.onmessage = (message) => {
+				if(message.data.type === 'results' ) {
+					generateGraph(message.data.data);
+				}
+			}
 			calcInterface();
+			
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sharpInterfaceWorker, delx, k, Rech, Qp, nQp]);

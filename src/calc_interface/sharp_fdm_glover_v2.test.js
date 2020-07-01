@@ -4,8 +4,11 @@ expect.extend({toBeDeepCloseTo});
 import * as Data1 from './test_data1';
 import * as SharpInterface from './sharp_fdm_glover_v2.worker.js';
 
-
 describe("Testing Sharp Interface", () => {
+
+	it.each([1,2,3,4,5,6,7,8,9])("profile the code [%p]", () => {
+		SharpInterface.SharpInterface();
+	})
 
 	describe("initIterationLoop return proper values", () => {
 		let x;
