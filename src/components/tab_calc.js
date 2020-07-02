@@ -87,10 +87,17 @@ export default function InterfaceCalculator(props) {
 	// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, []);
 
+
+	function reduceElementCount(e, index) {
+		return index % 7 === 0;
+	}
+	
 	function calcFlowVectors(delx, h, z) {
 		flowWorker.onmessage= (message) => {
 			if(message.data.type === 'results' ) {
-				setCalculatedFlowData(message.data.data);
+				const results = message.data.data;
+				results[1] = results[1].filter(reduceElementCount);
+				setCalculatedFlowData(results);
 				setUpdatingGraph(false);
 			}
 		}

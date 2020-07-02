@@ -126,8 +126,12 @@ function applyBCSharp(a, hFinal, nnode) {
 		const nnn = nrows * (l + 1) - 1;
 
 		for(let n = 0; n < nnode; n++) {
-			a.set([nnn, n], 0);
+			if(a.get([nnn, n]) !== 0) {
+				a.set([nnn, n], 0);
+			}
+			
 			b[n] = b[n] - a.get([n,nnn]) * hFinal[l];
+			
 			if(a.get([n, nnn]) !== 0) {
 				a.set([n, nnn], 0);
 			}
