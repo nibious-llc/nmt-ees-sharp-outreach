@@ -237,8 +237,4 @@ describe("Testing Flow Vector Calculations", () => {
 			expect(elements.map(x => x.qz)).toBeDeepCloseTo(Data1.getOutputQZ(), 5);
 		});
 	});
-
-	it.each([1,2,3,4,5,6,7,8,9])("profile the code [%p]", () => {
-		FlowCalc.main(60, Data1.getH(), Data1.getZ());
-	})
 });
