@@ -222,7 +222,7 @@ describe("Testing Flow Vector Calculations", () => {
 		});
 
 		it("hfem", () => {
-			expect(hfem).toBeDeepCloseTo(Data1.getOutputHFEM(), 5);
+			expect(hfem.map(x => x.hfem)).toBeDeepCloseTo(Data1.getOutputHFEM(), 5);
 		});
 		it("xc", () => {
 			expect(elements.map(x => x.point.x)).toBeDeepCloseTo(Data1.getOutputXC(), 5);

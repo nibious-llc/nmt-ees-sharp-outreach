@@ -178,8 +178,15 @@ export function main(delx, hFinal, zFinal) {
 	const [aa] = matrixSharp(ba, ca, ni, nj, nk, area, nnode, nelem);
 	const [a, b] = applyBCSharp(aa, hFinal, nnode);
 	const hfem = hfemCalc(a, b);
+
+
+	const hfemElements = new Array(hfem.length);
+	for(let i = 0; i < hfem.length; i++) {
+		hfemElements[i] = { x: x[i], z: z[i], hfem: hfem[i]};
+	}
+
 	const [elements] = fluxSharp(x, z, ni, nj, nk, ba, ca, area, hfem, nelem);
-	return [hfem, elements];
+	return [hfemElements, elements];
 }
 
 

@@ -3,7 +3,7 @@ import { useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { min, max } from 'mathjs';
 import { Paper, Typography, Grid, CircularProgress, Switch, FormGroup, FormControlLabel } from '@material-ui/core';
-import { Line } from 'react-chartjs-2';
+import { Line, Chart } from 'react-chartjs-2';
 import SliderForm from './SliderForm';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import SharpInterfaceWorker from 'workerize-loader!../calc_interface/sharp_fdm_glover_v2.worker';
@@ -55,7 +55,7 @@ export default function InterfaceCalculator(props) {
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
 	const [calculatedData, setCalculatedData] = useState(null);
-	const [calculateFlowVectors, setCalculateFlowVectors] = useState(false);
+	const [calculateFlowVectors, setCalculateFlowVectors] = useState(true);
 	const [calculatedFlowData, setCalculatedFlowData] = useState(null);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
@@ -75,9 +75,84 @@ export default function InterfaceCalculator(props) {
 		}
 	}
 
+	function registerScatter3DChart() {
+		Chart.defaults.scatter3D = Chart.defaults.scatter;
+		var custom = Chart.controllers.scatter.extend({
+			draw: function(ease) {
+				var meta = this.getMeta();
+				if(meta.data.length > 0 ) {
+
+					var ctx = this.chart.chart.ctx;
+					ctx.save();
+					for(let i = 0; i < meta.data.length - 22; i++) {
+						var pt = meta.data[i];
+						var nextPt = meta.data[i + 1];
+
+						const startX = pt._view.x;
+						const startY = pt._view.y;
+						const belowX = nextPt._view.x;
+						const belowY = nextPt._view.y;
+
+						const nextX = meta.data[i+21]._view.x;
+						const nextY = meta.data[i+21]._view.y;
+
+						const nextBelowX = meta.data[i + 22]._view.x;
+						const nextBelowY = meta.data[i + 22]._view.y;
+
+						if(startX > belowX) {
+							//We don't need to be drawing backwards
+							continue;
+						}
+						if(startY < belowY) { continue; }
+
+						//if(startY > belowY) { console.log("skipping"); continue; }
+
+						
+						var grd1 = ctx.createLinearGradient(startX, startY, nextX, nextY);
+						grd1.addColorStop(0, pt._view.backgroundColor);
+						grd1.addColorStop(1, meta.data[i+21]._view.backgroundColor);
+
+						ctx.fillStyle = grd1;
+						ctx.strokeStyle = grd1;
+						ctx.lineWidth = -1;
+						
+
+						ctx.beginPath();
+						ctx.moveTo(startX, startY);
+
+						ctx.lineTo(nextX, nextY);
+						
+
+						ctx.lineTo(nextBelowX, nextBelowY);		
+						
+						ctx.lineTo(belowX, belowY);	
+						
+
+						ctx.lineTo(startX, startY);	
+						ctx.stroke();
+
+						ctx.fill();
+						
+
+						
+					}
+					
+					ctx.restore();
+					console.log("Done");
+				}
+			}
+		});
+
+		Chart.controllers.scatter3D = custom;
+	}
+
+	registerScatter3DChart();
+
 	useEffect(() => {
+		
 		setSharpInterfaceWorker(SharpInterfaceWorker());
 		setFlowWorker(FlowWorker());
+
 
 		// Cleanup Function
 		return function () {
@@ -86,6 +161,7 @@ export default function InterfaceCalculator(props) {
 		};
 	// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, []);
+
 
 
 	function reduceElementCount(e, index) {
@@ -164,6 +240,20 @@ export default function InterfaceCalculator(props) {
 		return 360 - angle * (180 / Math.PI);
 	}
 
+	function determineColor(x) {
+		const min = Math.min(...calculatedFlowData[0].map(x => x.hfem));
+		const max = Math.max(...calculatedFlowData[0].map(x => x.hfem));
+		const colorStep = Math.ceil(255/(max-min) * x);
+
+		const returnValue = "rgba(" + colorStep.toString() + "," + colorStep.toString() + "," + (255-colorStep).toString() + ",1)";
+		return returnValue;
+		
+	}
+
+	function getCalculatedFlowDataSorted() {
+		return calculatedFlowData[0].map(x => { return {x: x.x, y: x.z}} );
+	}
+
 	return(
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
@@ -187,12 +277,13 @@ export default function InterfaceCalculator(props) {
 									backgroundColor: '#72a9e1'
 								},
 								{
-									type: 'scatter',
-									data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
-									rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => toAdjustedDegrees(Math.atan(x.qz/x.qx))),
-									label: "Flow Vectors",
-									pointStyle: "line",
-									borderColor: "rgba(0,0,0,1)"
+									type: 'scatter3D',
+									data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
+									//rotation: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => x.z),
+									label: "hfem",
+									borderColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
+									pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
+									hoverBorderWidth: 0
 								}
 							]
 				
@@ -229,7 +320,21 @@ export default function InterfaceCalculator(props) {
 										}]
 								},
 								tooltips: {
-									enabled: false
+									enabled: true,
+									callbacks: {
+										label: function(tooltipItem, data) 
+													{
+														var label = data.datasets[tooltipItem.datasetIndex].label || '';
+														if (tooltipItem.datasetIndex !== 2) {
+															return label + ": " + tooltipItem.y;
+														}
+														return "hfem: " + calculatedFlowData[0][tooltipItem.index].hfem.toString();
+													},
+										title: function(tooltipItem, data) 
+													{														
+														return "Values"
+													}
+									}
 								},
 								legend: {
 									onClick: (e) => e.stopPropagation(),
