@@ -55,7 +55,7 @@ export default function InterfaceCalculator(props) {
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
 	const [calculatedData, setCalculatedData] = useState(null);
-	const [calculateFlowVectors, setCalculateFlowVectors] = useState(true);
+	const [calculateFlowVectors, setCalculateFlowVectors] = useState(false);
 	const [calculatedFlowData, setCalculatedFlowData] = useState(null);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
@@ -141,7 +141,6 @@ export default function InterfaceCalculator(props) {
 
 		Chart.controllers.scatter3D = custom;
 	}
-
 	registerScatter3DChart();
 
 
@@ -161,8 +160,8 @@ export default function InterfaceCalculator(props) {
 						const startX = pt._view.x;
 						const startY = pt._view.y;
 
-						const qz = pt._view.rotation.qx; //range(-1, 1)
-						const qx = pt._view.rotation.qz; //range(-1, 1)
+						const qz = pt._view.rotation.qx;
+						const qx = pt._view.rotation.qz;
 
 						const magnitude = Math.sqrt(Math.pow(qx, 2) + Math.pow(qz, 2));
 						let  angle = Math.atan(qz/qx);
@@ -195,7 +194,6 @@ export default function InterfaceCalculator(props) {
 
 		Chart.controllers.vector = custom;
 	}
-
 	registerVectorChart();
 
 
@@ -296,6 +294,40 @@ export default function InterfaceCalculator(props) {
 		return calculatedFlowData[0].map(x => { return {x: x.x, y: x.z}} );
 	}
 
+	function getDatasets() {
+		if(calculateFlowVectors) {
+			return [{
+				type: 'vector',
+				data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
+				rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
+				label: "Flow Vectors",
+				backgroundColor: '#000000'
+			},
+			{
+				type: 'scatter3D',
+				data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
+				label: "hfem",
+				borderColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
+				pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem))								
+			}];
+		} else {
+			return [{
+				type: 'line',
+				data: calculatedData == null ? null : calculatedData.map(e => ({ x : e.x, y: e.z})),
+				fill: 'bottom',
+				label: "Seawater",
+				backgroundColor: '#ffab55'
+			},
+			{
+				type: 'line',
+				data: calculatedData == null ? null : calculatedData.map(e => ({ x : e.x, y: e.h})),
+				fill: 0,
+				label: "Fresh Water",
+				backgroundColor: '#72a9e1'
+			}];
+		}
+	}
+
 	return(
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
@@ -303,36 +335,7 @@ export default function InterfaceCalculator(props) {
 					<div style={{position: "relative"}}>	
 					<Line
 					  data={{
-							datasets: [
-								{
-									type: 'line',
-									data: calculatedData == null ? null : calculatedData.map(e => ({ x : e.x, y: e.z})),
-									fill: 'bottom',
-									label: "Seawater",
-									backgroundColor: '#ffab55'
-								},
-								{
-									type: 'line',
-									data: calculatedData == null ? null : calculatedData.map(e => ({ x : e.x, y: e.h})),
-									fill: 0,
-									label: "Fresh Water",
-									backgroundColor: '#72a9e1'
-								},
-								{
-									type: 'vector',
-									data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
-									rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
-									label: "Flow Vectors",
-									backgroundColor: '#000000'
-								},
-								{
-									type: 'scatter3D',
-									data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
-									label: "hfem",
-									borderColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
-									pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem))								}
-							]
-				
+							datasets: getDatasets()				
 							}} 
 							title="Freshwater/Saltwater Interface" 
 							options={
@@ -371,10 +374,14 @@ export default function InterfaceCalculator(props) {
 										label: function(tooltipItem, data) 
 													{
 														var label = data.datasets[tooltipItem.datasetIndex].label || '';
-														if (tooltipItem.datasetIndex !== 2) {
-															return label + ": " + tooltipItem.y;
+														if (data.datasets[tooltipItem.datasetIndex].type === "scatter3D") {
+															return "hfem: " + calculatedFlowData[0][tooltipItem.index].hfem.toString();
 														}
-														return "hfem: " + calculatedFlowData[0][tooltipItem.index].hfem.toString();
+														if (data.datasets[tooltipItem.datasetIndex].type === "vector") {
+															return "";
+														}
+														return label + ": " + tooltipItem.y;
+														
 													},
 										title: function(tooltipItem, data) 
 													{														
