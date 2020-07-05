@@ -132,13 +132,9 @@ export default function InterfaceCalculator(props) {
 						ctx.stroke();
 
 						ctx.fill();
-						
-
-						
+							
 					}
-					
 					ctx.restore();
-					console.log("Done");
 				}
 			}
 		});
@@ -147,6 +143,61 @@ export default function InterfaceCalculator(props) {
 	}
 
 	registerScatter3DChart();
+
+
+
+	function registerVectorChart() {
+		Chart.defaults.vector = Chart.defaults.scatter;
+		var custom = Chart.controllers.scatter.extend({
+			draw: function(ease) {
+				var meta = this.getMeta();
+				if(meta.data.length > 0 ) {
+
+					var ctx = this.chart.chart.ctx;
+					ctx.save();
+					for(let i = 0; i < meta.data.length ; i++) {
+						var pt = meta.data[i];
+
+						const startX = pt._view.x;
+						const startY = pt._view.y;
+
+						const qz = pt._view.rotation.qx; //range(-1, 1)
+						const qx = pt._view.rotation.qz; //range(-1, 1)
+
+						const magnitude = Math.sqrt(Math.pow(qx, 2) + Math.pow(qz, 2));
+						let  angle = Math.atan(qz/qx);
+						if(qx > 0) {
+							angle = angle - Math.PI;
+						}
+
+						const endX = 0;
+						const endY = magnitude * 8;
+
+						ctx.beginPath();
+						ctx.strokeStyle = 'rgba(0,0,0,1)';						
+						ctx.translate(startX, startY);
+						ctx.rotate(angle);
+						
+						ctx.moveTo(0, 0);
+						ctx.lineTo(endX, endY);
+						ctx.lineTo(endX - 3, endY - 3);
+						ctx.moveTo(endX, endY);
+						ctx.lineTo(endX + 3, endY - 3);
+
+						ctx.rotate(-1 * angle);
+						ctx.translate(-1 * startX, -1 * startY);
+						ctx.stroke();
+					}
+					ctx.restore();
+				}
+			}
+		});
+
+		Chart.controllers.vector = custom;
+	}
+
+	registerVectorChart();
+
 
 	useEffect(() => {
 		
@@ -231,15 +282,6 @@ export default function InterfaceCalculator(props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sharpInterfaceWorker, delx, k, Rech, Qp, nQp]);
 
-	/**
-	 * Converts to degrees with the vertical flip
-	 * This is to adjust for the default position of the element line
-	 * @param {float} angle 
-	 */
-	function toAdjustedDegrees (angle) {
-		return 360 - angle * (180 / Math.PI);
-	}
-
 	function determineColor(x) {
 		const min = Math.min(...calculatedFlowData[0].map(x => x.hfem));
 		const max = Math.max(...calculatedFlowData[0].map(x => x.hfem));
@@ -277,14 +319,18 @@ export default function InterfaceCalculator(props) {
 									backgroundColor: '#72a9e1'
 								},
 								{
+									type: 'vector',
+									data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
+									rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
+									label: "Flow Vectors",
+									backgroundColor: '#000000'
+								},
+								{
 									type: 'scatter3D',
 									data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
-									//rotation: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => x.z),
 									label: "hfem",
 									borderColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
-									pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
-									hoverBorderWidth: 0
-								}
+									pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem))								}
 							]
 				
 							}} 
