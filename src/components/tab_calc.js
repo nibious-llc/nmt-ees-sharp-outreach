@@ -55,7 +55,7 @@ export default function InterfaceCalculator(props) {
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
 	const [calculatedData, setCalculatedData] = useState(null);
-	const [calculateFlowVectors, setCalculateFlowVectors] = useState(false);
+	const [calculateFlowVectors, setCalculateFlowVectors] = useState(true);
 	const [calculatedFlowData, setCalculatedFlowData] = useState(null);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
@@ -154,7 +154,7 @@ export default function InterfaceCalculator(props) {
 
 					var ctx = this.chart.chart.ctx;
 					ctx.save();
-					for(let i = 0; i < meta.data.length ; i++) {
+					for(let i = 0; i < meta.data.length; i++) {
 						var pt = meta.data[i];
 
 						const startX = pt._view.x;
@@ -170,7 +170,7 @@ export default function InterfaceCalculator(props) {
 						}
 
 						const endX = 0;
-						const endY = magnitude * 8;
+						const endY = magnitude * 10;
 
 						ctx.beginPath();
 						ctx.strokeStyle = 'rgba(0,0,0,1)';						
@@ -181,11 +181,11 @@ export default function InterfaceCalculator(props) {
 						ctx.lineTo(endX, endY);
 						ctx.lineTo(endX - 3, endY - 3);
 						ctx.moveTo(endX, endY);
-						ctx.lineTo(endX + 3, endY - 3);
+						ctx.lineTo(endX + 3, endY - 3);						
+						ctx.stroke();
 
 						ctx.rotate(-1 * angle);
 						ctx.translate(-1 * startX, -1 * startY);
-						ctx.stroke();
 					}
 					ctx.restore();
 				}
@@ -301,12 +301,12 @@ export default function InterfaceCalculator(props) {
 				data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
 				rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
 				label: "Flow Vectors",
-				backgroundColor: '#000000'
-			},
-			{
+				backgroundColor: 'rgba(0,0,0,0)'
+			},{
 				type: 'scatter3D',
 				data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
 				label: "hfem",
+				backgroundColor: 'rgba(0,0,0,0)',
 				borderColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
 				pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem))								
 			}];
