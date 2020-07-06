@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Body(props) {
 	const classes = useStyles();
-	const [tabValue, setTabValue] = React.useState(1);
+	const [tabValue, setTabValue] = React.useState(0);
 	const [calculatedData, setCalculatedData] = React.useState(null);
 
 	function handleTabOnChange(event, newValue) {

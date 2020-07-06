@@ -55,7 +55,7 @@ export default function InterfaceCalculator(props) {
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(10);
 	const [calculatedData, setCalculatedData] = useState(null);
-	const [calculateFlowVectors, setCalculateFlowVectors] = useState(true);
+	const [calculateFlowVectors, setCalculateFlowVectors] = useState(false);
 	const [calculatedFlowData, setCalculatedFlowData] = useState(null);
 
 	const [updatingGraph, setUpdatingGraph] = useState(true);
