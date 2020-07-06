@@ -293,14 +293,17 @@ export default function InterfaceCalculator(props) {
 	function getCalculatedFlowDataSorted() {
 		return calculatedFlowData[0].map(x => { return {x: x.x, y: x.z}} );
 	}
-
+	var arrowImage = new Image(15, 15);
+	arrowImage.src = "/nmt-ees-sharp-outreach/arrow.svg";
+	
 	function getDatasets() {
-		if(calculateFlowVectors) {
+		if(calculateFlowVectors) {	
 			return [{
 				type: 'vector',
 				data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
 				rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
 				label: "Flow Vectors",
+				pointStyle: arrowImage,
 				backgroundColor: 'rgba(0,0,0,0)'
 			},{
 				type: 'scatter3D',
@@ -411,7 +414,6 @@ export default function InterfaceCalculator(props) {
 					<Typography variant="h1" >
 						Controls
 					</Typography>
-
 
 						<FormGroup>
 							<SliderForm
