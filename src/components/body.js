@@ -70,6 +70,27 @@ export default function Body(props) {
 			<div hidden={tabValue !== 2}>
 				<EquationTab data={calculatedData}/>
 			</div>
+			<Paper className={classes.root}>
+				<Box textAlign="left">
+					<Typography variant="h5">
+						Acknowledgements
+					</Typography>
+					<Typography>
+					US National Science Foundation, Frontiers in Earth Sciences, Grant #1925974
+					</Typography>
+					<Typography variant="h5">
+						Authors
+					</Typography>
+					<Typography>
+						<sup>1</sup>Owen Parkins and <sup>2</sup>Mark Person, NM Tech
+					</Typography>
+					<Typography>
+						<sup>1</sup> Department of Computer Science, NM Tech
+						<br/>
+						<sup>2</sup> Hydrology Program Department of Earth and Environmental Sciences, NM Tech
+					</Typography>
+				</Box>
+			</Paper>
 		</div>
 	);
 }
