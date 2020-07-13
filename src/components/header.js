@@ -23,7 +23,7 @@ export default function Header(props) {
 		<AppBar position="static">
 			<Toolbar>
 				<Typography variant="h6" className={classes.title}>
-					NMT EES Sharp Interface Calculator
+					Sharp Interface Calculator
 				</Typography>
 			</Toolbar>
 		</AppBar>
