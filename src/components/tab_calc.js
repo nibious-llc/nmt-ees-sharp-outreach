@@ -105,9 +105,6 @@ export default function InterfaceCalculator(props) {
 						}
 						if(startY < belowY) { continue; }
 
-						//if(startY > belowY) { console.log("skipping"); continue; }
-
-						
 						var grd1 = ctx.createLinearGradient(startX, startY, nextX, nextY);
 						grd1.addColorStop(0, pt._view.backgroundColor);
 						grd1.addColorStop(1, meta.data[i+21]._view.backgroundColor);
