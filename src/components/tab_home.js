@@ -40,7 +40,7 @@ export default function Home(props) {
 					<Typography className={classes.text}>
 						Assessing the effects of pumping on island aquifer systems can be carried out
 						using a sharp-interface model. In sharp interface theory, we solve for the
-						position of the water table and the freshwater-seawater transition zone. 
+						position of the water table and the freshwater-seawater transition zone (See EQUATIONS tab). 
 						Both are surfaces that vary depending on the choice of recharge rate, 
 						pumping rate, recharge rate, and island size (here controlled by the nodal
 						spacing (&Delta;x). These models are statements of water conservation. 
