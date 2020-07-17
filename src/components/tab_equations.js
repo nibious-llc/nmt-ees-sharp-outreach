@@ -114,9 +114,9 @@ export default function Equations(props) {
 	const eq_bsp = `\\text{Bsp}(i)=\\frac{T_i^s+T_{i+1}^s}{2}`;
 	const eq_bsm = `\\text{Bsm}(i)=\\frac{T_i^s+T_{i-1}^s}{2}`;
 
-	const transmissivityDef = "Some Definition Goes Here :-)";
-	const steadyStateDef = "Some OTHER def goes here";
-	const hydraulicHeadDef = "Yet another def";
+	const transmissivityDef = "Transmissivity describes the ability of the aquifer to transmit groundwater throughout its entire saturated thickness (Goulburn-Murray Water, 2015)";
+	const steadyStateDef = "A state or condition of a system or process (such as one of the energy states of an atom) that does not change in time (Merriam-Webster). We use the idea that interactions of various components previously observed will continue to occur and allow us to model changes. If the interactions were not consistent, this would not be a steady-state problem.";
+	const hydraulicHeadDef = "Hydraulic head is the height to which water will rise in a bore. It is the resting groundwater level (Goulburn-Murray Water, 2015)";
 	
 	return (
 		<Container maxWidth="lg">
@@ -135,7 +135,10 @@ export default function Equations(props) {
 						horizontal: 'center',
 					}}
 				>
-					<Typography>{definition}</Typography>
+					<Container maxWidth="lg">
+						<Typography>{definition}</Typography>
+					</Container>
+					
 				</Popover>
 				<Box textAlign="left">
 					<MathJax.Provider>
@@ -353,7 +356,10 @@ export default function Equations(props) {
 							<Typography>
 							Person, M., Taylor, J. and S. L. Dingman, 1998, Sharp-Interface Models of Salt Water Intrusion and Well Head Delineation on Nantucket Island, Massachusetts, Ground Water, v. 36, p. 731-742. 
 							</Typography>
-
+							<Typography variant="h2">Definition References</Typography>
+							<Typography>
+								Goulburn-Murray Water, 2015. Groundwater Terms and definitions. Retrieved from: https://www.g-mwater.com.au/downloads/gmw/Groundwater/29012016-_2977263-v9-GROUNDWATER_TERMS_AND_DEFINITIONS_GLOSSARY_FOR_USERS.pdf
+							</Typography>
         	</MathJax.Provider>
 				</Box>
 			</Paper>
