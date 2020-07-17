@@ -213,12 +213,23 @@ export default function InterfaceCalculator(props) {
 	function reduceElementCount(e, index) {
 		return index % 7 === 0;
 	}
-	
+
+	function updateHFEMHeadNodes(hfemElements) {
+
+		let count = 0;
+		// Only touch the top nodes
+		for(let i = 20; i < hfemElements.length; i = i + 21) { 
+			hfemElements[i].z = calculatedData[count++].h;
+		}
+		return hfemElements;
+	}
+
 	function calcFlowVectors(delx, h, z) {
 		flowWorker.onmessage= (message) => {
 			if(message.data.type === 'results' ) {
 				const results = message.data.data;
 				results[1] = results[1].filter(reduceElementCount);
+				results[0] = updateHFEMHeadNodes(results[0]);
 				setCalculatedFlowData(results);
 				setUpdatingGraph(false);
 			}
@@ -280,7 +291,9 @@ export default function InterfaceCalculator(props) {
 	function determineColor(x) {
 		const min = Math.min(...calculatedFlowData[0].map(x => x.hfem));
 		const max = Math.max(...calculatedFlowData[0].map(x => x.hfem));
-		const colorStep = Math.ceil(255/(max-min) * x);
+
+		// Round to the tenth. Limit the amount of colors that the computer has to render
+		const colorStep = Math.ceil(255/(max-min) * Math.round(x * 10)/10);
 
 		const returnValue = "rgba(" + colorStep.toString() + "," + colorStep.toString() + "," + (255-colorStep).toString() + ",1)";
 		return returnValue;
@@ -364,7 +377,7 @@ export default function InterfaceCalculator(props) {
 											ticks: {
 												suggestedMin: minX,
 												suggestedMax: maxX,
-												stepSize: delx
+												step: delx
 										}
 										}]
 								},
@@ -394,6 +407,9 @@ export default function InterfaceCalculator(props) {
 									labels: {
 										usePointStyle: true
 									}
+								},
+								animation: {
+									easing: "easeInOutQuint"
 								}
 						}}/>
 						{ errorText && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
