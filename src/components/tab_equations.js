@@ -358,7 +358,7 @@ export default function Equations(props) {
 							</Typography>
 							<Typography variant="h2">Definition References</Typography>
 							<Typography>
-								Goulburn-Murray Water, 2015. Groundwater Terms and definitions. Retrieved from: https://www.g-mwater.com.au/downloads/gmw/Groundwater/29012016-_2977263-v9-GROUNDWATER_TERMS_AND_DEFINITIONS_GLOSSARY_FOR_USERS.pdf
+								Goulburn-Murray Water, 2015. Groundwater Terms and definitions. Retrieved from: <a href="https://www.g-mwater.com.au/downloads/gmw/Groundwater/29012016-_2977263-v9-GROUNDWATER_TERMS_AND_DEFINITIONS_GLOSSARY_FOR_USERS.pdf">here</a>
 							</Typography>
         	</MathJax.Provider>
 				</Box>
