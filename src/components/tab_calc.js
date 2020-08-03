@@ -2,13 +2,13 @@ import React, {useEffect} from 'react';
 import { useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { min, max } from 'mathjs';
-import { Paper, Typography, Grid, CircularProgress, Switch, FormGroup, FormControlLabel } from '@material-ui/core';
+import { Paper, Typography, Grid, CircularProgress} from '@material-ui/core';
 import { Line, Chart } from 'react-chartjs-2';
-import SliderForm from './SliderForm';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import SharpInterfaceWorker from 'workerize-loader!../calc_interface/sharp_fdm_glover_v2.worker';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import FlowWorker from 'workerize-loader!../calc_flow/calc_flow';
+import Controls from './calc/controls';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -28,19 +28,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 	updatingText: {
 		color: "white"
-	},
-	formControlLabel: {
-		marginLeft: theme.spacing(2),
-		marginRight: theme.spacing(2),
-		marginBottom: theme.spacing(2),
-		marginTop: 0
-	},
-	formLabel: {
-		textAlign: 'left',
-		color: "black",
-		marginLeft: theme.spacing(2),
-		marginRight: theme.spacing(2),
-		marginBottom: 0
 	}
 }));
 
@@ -423,81 +410,26 @@ export default function InterfaceCalculator(props) {
 						}		
 					</div>
 				</Grid>
-				<Grid item md={4} xs={12}>
-					<Typography variant="h1" >
-						Controls
-					</Typography>
+				<Controls
+					updatingGraph={updatingGraph}
+					delx = {delx}
+					setDelx = {setDelx}
 
-						<FormGroup>
-							<SliderForm
-								disabled={updatingGraph}
-								title="delx (m): Controls the grid size"
-								min={30}
-								valueLabelDisplay="auto"
-								max={120}
-								value={delx}
-								onChange={(event, value) => setDelx(value)}
-							/>
+					k = {k}
+					setK = {setK}
 
-							<SliderForm
-								disabled={updatingGraph}
-								title="k (m^2): Controls the permeability of aquifer"
-								min={-14}
-								valueLabelDisplay="auto"
-								max={-10}
-								step={.1}
-								value={k}
-								onChange={(event, value) => setK(value)}
-							/>
+					Rech = {Rech}
+					setRech = {setRech}
 
+					Qp = {Qp}
+					setQp = {setQp}
 
-							<SliderForm
-								title="Rech (m/day): The amount of water replenishing the aquifer"
-								disabled={updatingGraph}
-								min={.001}
-								valueLabelDisplay="auto"
-								max={.020}
-								step={.001}
-								value={Rech}
-								onChange={(event, value) => setRech(value)}
-							/>
+					nQp = {nQp}
+					setnQp = {setnQp}
 
-							<SliderForm
-								title="Qp (m^3/day/island area): The pumping rate"
-								disabled={updatingGraph}
-								min={.1}
-								valueLabelDisplay="auto"
-								max={1}
-								step={.05}
-								value={Qp}
-								onChange={(event, value) =>  setQp(value)}
-							/>
-
-							<SliderForm
-								title="nQp: The node where pumping occurs from"
-								disabled={updatingGraph}
-								min={10}
-								valueLabelDisplay="auto"
-								max={90}
-								value={nQp}
-								marks
-								onChange={(event, value) => setnQp(value)}
-							/>
-
-							<FormControlLabel
-								className={classes.formControlLabel}
-								disabled={updatingGraph}
-								control={
-									<Switch
-										color='primary'
-										checked={calculateFlowVectors}
-										onChange={handleSwitchOnChange}
-									/>
-								}
-								label="Calculate Flow Vectors"
-							/>
-					</FormGroup>
-				</Grid>
+					calculateFlowVectors = {calculateFlowVectors}
+					handleSwitchOnChange = {handleSwitchOnChange}
+				/>
 			</Grid>
 		</Paper>
 	);
