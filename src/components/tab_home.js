@@ -86,19 +86,21 @@ export default function Home(props) {
 					<Typography className={classes.text}>
 						On Cape Cod the water table has parabolic geometry with maximum water levels
 						occurring in the center of the island. On Cape Cod, the maximum water table
-						elevation is only about 16 feet (~ 5 <MathJax.Node inline formula={'m'}/>; Figure 2) above sea level. Groundwater
-						flows from higher to lower water table elevations much the same way a marble
-						will roll downhill. The French hydrogeologist Henry Darcy developed a flow law
-						that states that the flux of groundwater is directly proportional to the water
-						table gradient. We refer to this relationship as Darcy Law:
+						elevation is only about 16 feet (~ 5 <MathJax.Node inline formula={'m'}/>; Figure 2) 
+						above sea level. Groundwater flows from higher to lower water table elevations 
+						much the same way a marble will roll downhill. The French hydrogeologist Henry 
+						Darcy developed a flow law that states that the flux of groundwater is directly 
+						proportional to the water table gradient. We refer to this relationship as Darcy Law:
 					</Typography>
 
 					<MathJax.Node formula={'Q = -KA\\frac{\\Delta h}{\\Delta x}'}/>
 
 					<Typography className={classes.text}>
-						where Q is the flux of groundwater (<MathJax.Node inline formula={'m^3/day'}/>), <MathJax.Node inline formula={'A'}/> is the cross-sectional area of
-						the aquifer normal to the coastline, <MathJax.Node inline formula={'K'}/> is the hydraulic conductivity which is a
-						measure of how transmissive the aquifer is, and <MathJax.Node inline formula={'\\frac{h}{x}'}/> is the water table slope
+						where Q is the flux of groundwater (<MathJax.Node inline formula={'m^3/day'}/>), 
+						<MathJax.Node inline formula={'A'}/> is the cross-sectional area of the aquifer 
+						normal to the coastline, <MathJax.Node inline formula={'K'}/> is the hydraulic 
+						conductivity which is a measure of how transmissive the aquifer is, and
+						<MathJax.Node inline formula={'\\frac{h}{x}'}/> is the water table slope
 						taken from the shoreline to the center of the island.
 					</Typography>
 
@@ -141,7 +143,9 @@ export default function Home(props) {
 						<Box textAlign="center" alignItems="center">
 							<img className={classes.image} src={CapeCodModel} alt="Cape Cod Water Computer Model"/>
 							<Typography variant="caption">
-								<b>Figure 3.</b> <i>Computer model estimates of water table height and salinity conditions in the water table aquifer beneath Cape Cod (from Masterson, 2004). See Figure 2 for the location of these cross sections.</i>
+								<b>Figure 3.</b> <i>Computer model estimates of water table height and salinity conditions 
+									in the water table aquifer beneath Cape Cod (from Masterson, 2004). See Figure 2 for the 
+									location of these cross sections.</i>
 							</Typography>
 						</Box>
 					</Container>
@@ -181,7 +185,9 @@ export default function Home(props) {
 
 					<Typography variant="h2">References</Typography>
 					<Typography>
-					Masterson, J.P., 2004. Simulated interaction between freshwater and saltwater and effects of ground-water pumping and sea-level change, Lower Cape Cod aquifer system, Massachusetts (Vol. 4, No. 4). DIANE Publishing.
+					Masterson, J.P., 2004. Simulated interaction between freshwater and saltwater and effects 
+					of ground-water pumping and sea-level change, Lower Cape Cod aquifer system, Massachusetts 
+					(Vol. 4, No. 4). DIANE Publishing.
 					</Typography>
 				</Box>
 			</MathJax.Provider>
