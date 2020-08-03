@@ -3,12 +3,12 @@ import { useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { min, max } from 'mathjs';
 import { Paper, Typography, Grid, CircularProgress} from '@material-ui/core';
-import { Line, Chart } from 'react-chartjs-2';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import SharpInterfaceWorker from 'workerize-loader!../calc_interface/sharp_fdm_glover_v2.worker';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import FlowWorker from 'workerize-loader!../calc_flow/calc_flow';
 import Controls from './calc/controls';
+import InterfaceGraph from './calc/chart';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -16,22 +16,36 @@ const useStyles = makeStyles((theme) => ({
 		paddingLeft: theme.spacing(1),
 		paddingRight: theme.spacing(1),
 	},
-	backdrop: {
-		zIndex: theme.zIndex.drawer,
-		position:"absolute",
-		color: '#fff',
-		width:"100%",
-		height:"100%",
-	},
 	graphGrid: {
 		positon: "relative"
 	},
 	updatingText: {
 		color: "white"
+	},
+	updatingOverlay: {
+		position: 'absolute',
+		top: 0,
+		bottom: 0,
+		left: 0,
+		right: 0,
+		backgroundColor: 'black',
+		opacity: '75%',
+		borderRadius: '15px'
+	},
+	errorOverlay: {
+		position: 'absolute',
+		top: 0,
+		bottom: 0,
+		left: 0,
+		right: 0,
+		backgroundColor: 'red',
+		opacity: '75%',
+		borderRadius: '15px'
 	}
 }));
 
 const calcSharpInterfaceUpdatingText = "Calculating Sharp Interface..."
+const calcFlowVectorsUpdatingText = "Calculating Flow Vectors..."
 
 export default function InterfaceCalculator(props) {
 	const [sharpInterfaceWorker, setSharpInterfaceWorker] = useState(null);
@@ -62,130 +76,10 @@ export default function InterfaceCalculator(props) {
 		}
 	}
 
-	function registerScatter3DChart() {
-		Chart.defaults.scatter3D = Chart.defaults.scatter;
-		var custom = Chart.controllers.scatter.extend({
-			draw: function(ease) {
-				var meta = this.getMeta();
-				if(meta.data.length > 0 ) {
-
-					var ctx = this.chart.chart.ctx;
-					ctx.save();
-					for(let i = 0; i < meta.data.length - 22; i++) {
-						var pt = meta.data[i];
-						var nextPt = meta.data[i + 1];
-
-						const startX = pt._view.x;
-						const startY = pt._view.y;
-						const belowX = nextPt._view.x;
-						const belowY = nextPt._view.y;
-
-						const nextX = meta.data[i+21]._view.x;
-						const nextY = meta.data[i+21]._view.y;
-
-						const nextBelowX = meta.data[i + 22]._view.x;
-						const nextBelowY = meta.data[i + 22]._view.y;
-
-						if(startX > belowX) {
-							//We don't need to be drawing backwards
-							continue;
-						}
-						if(startY < belowY) { continue; }
-
-						var grd1 = ctx.createLinearGradient(startX, startY, nextX, nextY);
-						grd1.addColorStop(0, pt._view.backgroundColor);
-						grd1.addColorStop(1, meta.data[i+21]._view.backgroundColor);
-
-						ctx.fillStyle = grd1;
-						ctx.strokeStyle = grd1;
-						ctx.lineWidth = -1;
-						
-
-						ctx.beginPath();
-						ctx.moveTo(startX, startY);
-
-						ctx.lineTo(nextX, nextY);
-						
-
-						ctx.lineTo(nextBelowX, nextBelowY);		
-						
-						ctx.lineTo(belowX, belowY);	
-						
-
-						ctx.lineTo(startX, startY);	
-						ctx.stroke();
-
-						ctx.fill();
-							
-					}
-					ctx.restore();
-				}
-			}
-		});
-
-		Chart.controllers.scatter3D = custom;
-	}
-	registerScatter3DChart();
-
-
-
-	function registerVectorChart() {
-		Chart.defaults.vector = Chart.defaults.scatter;
-		var custom = Chart.controllers.scatter.extend({
-			draw: function(ease) {
-				var meta = this.getMeta();
-				if(meta.data.length > 0 ) {
-
-					var ctx = this.chart.chart.ctx;
-					ctx.save();
-					for(let i = 0; i < meta.data.length; i++) {
-						var pt = meta.data[i];
-
-						const startX = pt._view.x;
-						const startY = pt._view.y;
-
-						const qz = pt._view.rotation.qx;
-						const qx = pt._view.rotation.qz;
-
-						const magnitude = Math.sqrt(Math.pow(qx, 2) + Math.pow(qz, 2));
-						let  angle = Math.atan(qz/qx);
-						if(qx > 0) {
-							angle = angle - Math.PI;
-						}
-
-						const endX = 0;
-						const endY = magnitude * 10;
-
-						ctx.beginPath();
-						ctx.strokeStyle = 'rgba(0,0,0,1)';						
-						ctx.translate(startX, startY);
-						ctx.rotate(angle);
-						
-						ctx.moveTo(0, 0);
-						ctx.lineTo(endX, endY);
-						ctx.lineTo(endX - 3, endY - 3);
-						ctx.moveTo(endX, endY);
-						ctx.lineTo(endX + 3, endY - 3);						
-						ctx.stroke();
-
-						ctx.rotate(-1 * angle);
-						ctx.translate(-1 * startX, -1 * startY);
-					}
-					ctx.restore();
-				}
-			}
-		});
-
-		Chart.controllers.vector = custom;
-	}
-	registerVectorChart();
-
-
 	useEffect(() => {
 		
 		setSharpInterfaceWorker(SharpInterfaceWorker());
 		setFlowWorker(FlowWorker());
-
 
 		// Cleanup Function
 		return function () {
@@ -194,12 +88,6 @@ export default function InterfaceCalculator(props) {
 		};
 	// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, []);
-
-
-
-	function reduceElementCount(e, index) {
-		return index % 7 === 0;
-	}
 
 	function updateHFEMHeadNodes(hfemElements) {
 
@@ -215,7 +103,11 @@ export default function InterfaceCalculator(props) {
 		flowWorker.onmessage= (message) => {
 			if(message.data.type === 'results' ) {
 				const results = message.data.data;
-				results[1] = results[1].filter(reduceElementCount);
+
+				results[1] = results[1].filter((e, index) => {
+					return index % 7 === 0;
+				});
+
 				results[0] = updateHFEMHeadNodes(results[0]);
 				setCalculatedFlowData(results);
 				setUpdatingGraph(false);
@@ -223,7 +115,7 @@ export default function InterfaceCalculator(props) {
 		}
 		flowWorker.postMessage([delx, h, z]);
 		setUpdatingGraph(true);
-		setUpdatingGraphText("Calculating Flow Vectors...");
+		setUpdatingGraphText(calcFlowVectorsUpdatingText);
 	}
 	
 	function calcInterface() {
@@ -255,6 +147,7 @@ export default function InterfaceCalculator(props) {
 			setMinY(min(min(z), min(h)));
 			setMaxY(max(max(z), max(h)));
 			setMinX(min(x));
+			console.log(max(x));
 			setMaxX(max(x));
 
 			if(calculateFlowVectors === false) {
@@ -328,86 +221,38 @@ export default function InterfaceCalculator(props) {
 		}
 	}
 
+	function getOverlays() {
+		if(errorText) {
+			return (
+			<Grid container justify="center"  alignItems="center" className={classes.errorOverlay}>
+				<Typography><b>{errorText}</b></Typography>
+			</Grid>
+			);
+		} 
+		if(updatingGraph) {
+			return (
+				<Grid container justify="center"  alignItems="center" className={classes.updatingOverlay}>
+					<CircularProgress/>
+					<Typography className={classes.updatingText}>{updatingGraphText}</Typography>
+				</Grid>
+			);
+		}
+	}
+
 	return(
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
 				<Grid item md={8} xs={12} className={classes.graphGrid}>
 					<div style={{position: "relative"}}>	
-					<Line
-					  data={{
-							datasets: getDatasets()				
-							}} 
-							title="Freshwater/Saltwater Interface" 
-							options={
-							{
-								scales: {
-										yAxes: [{
-											type: 'linear',
-											position: 'left',
-											scaleLabel: {
-												display: true,
-												labelString: "Elevation (m)"
-											},
-											ticks: {
-													suggestedMin: minY, 
-													suggestedMax: maxY
-												}
-										}],
-										xAxes: [{
-											beginAtZero: true,
-											type: 'linear',
-											position: 'bottom',
-											scaleLabel: {
-												display: true,
-												labelString: "Distance (m)"
-											},
-											ticks: {
-												suggestedMin: minX,
-												suggestedMax: maxX,
-												step: delx
-										}
-										}]
-								},
-								tooltips: {
-									enabled: true,
-									callbacks: {
-										label: function(tooltipItem, data) 
-													{
-														var label = data.datasets[tooltipItem.datasetIndex].label || '';
-														if (data.datasets[tooltipItem.datasetIndex].type === "scatter3D") {
-															return "hfem: " + calculatedFlowData[0][tooltipItem.index].hfem.toString();
-														}
-														if (data.datasets[tooltipItem.datasetIndex].type === "vector") {
-															return "";
-														}
-														return label + ": " + tooltipItem.y;
-														
-													},
-										title: function(tooltipItem, data) 
-													{														
-														return "Values"
-													}
-									}
-								},
-								legend: {
-									onClick: (e) => e.stopPropagation(),
-									labels: {
-										usePointStyle: true
-									}
-								},
-								animation: {
-									easing: "easeInOutQuint"
-								}
-						}}/>
-						{ errorText && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'red', opacity: '75%', borderRadius: '15px'}}>
-							<Typography><b>{errorText}</b></Typography>
-							</Grid>
-						}										
-						{updatingGraph && <Grid container justify="center"  alignItems="center" style={{position: "absolute", top:0, bottom:0, left:0, right:0, backgroundColor: 'black', opacity: '75%', borderRadius: '15px'}}>
-							<CircularProgress/>
-							<Typography className={classes.updatingText}>{updatingGraphText}</Typography>
-						</Grid>
-						}		
+						<InterfaceGraph
+							datasets = {getDatasets()}
+							minY = {minY}
+							maxY = {maxY}
+							delx = {delx}
+							minX = {minX}
+							maxX = {maxX}
+						/>		
+						{getOverlays()}
 					</div>
 				</Grid>
 				<Controls
