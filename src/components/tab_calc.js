@@ -52,9 +52,10 @@ export default function InterfaceCalculator(props) {
 	const [flowWorker, setFlowWorker] = useState(null);
 	const [delx, setDelx] = useState(60);
 	const [k, setK] = useState(-11);
-	const [Rech, setRechBase] = useState(2e-2);
+	const [Rech, setRechBase] = useState(3e-2);
 	const [rechIndex, setRechIndex] = useState(4);
-	const [Qp, setQp] = useState(0.30);
+	const [Qp, setQpBase] = useState(0.01);
+	const [QpIndex, setQpIndex] = useState(3);
 	const [nQp, setnQp] = useState(50);
 	const [calculatedData, setCalculatedData] = useState(null);
 	const [calculateFlowVectors, setCalculateFlowVectors] = useState(false);
@@ -69,7 +70,7 @@ export default function InterfaceCalculator(props) {
 	const [errorText, setErrorText] = useState(null);
 	const classes = useStyles();
 
-	const rechValues = [
+	const pumpingRates = [
 		{
 			value: 0,
 			label: "1e-3"
@@ -101,12 +102,48 @@ export default function InterfaceCalculator(props) {
 		{
 			value: 7,
 			label: "5e-2"
+		}
+	]
+
+	const rechValues = [
+		{
+			value: 0,
+			label: "1e-3"
 		},
+		{
+			value: 1,
+			label: "2e-3"
+		},
+		{
+			value: 2,
+			label: "5e-3"
+		},
+		{
+			value: 3,
+			label: "2e-2"
+		},
+		{
+			value: 4,
+			label: "3e-2"
+		},
+		{
+			value: 5,
+			label: "4e-2"
+		},
+		{
+			value: 6,
+			label: "5e-2"
+		}
 	]
 
 	function setRech(value) {
 		setRechBase(parseFloat(rechValues[value].label));
 		setRechIndex(value);
+	}
+
+	function setQp(value) {
+		setQpBase(parseFloat(pumpingRates[value].label));
+		setQpIndex(value);
 	}
 	
 	function handleSwitchOnChange(event) {
@@ -308,8 +345,9 @@ export default function InterfaceCalculator(props) {
 					setRech = {setRech}
 					rechValues={rechValues}
 
-					Qp = {Qp}
+					Qp = {QpIndex}
 					setQp = {setQp}
+					pumpingRates={pumpingRates}
 
 					nQp = {nQp}
 					setnQp = {setnQp}
