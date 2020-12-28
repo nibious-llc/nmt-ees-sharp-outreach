@@ -39,7 +39,7 @@ export default function ActivityQuestions() {
 				</Typography>
 				<List>
 					<ListItem>
-						1. Vary the pumping well position (Iwell) from nodes 41, 61, and
+						1. Vary the pumping well position (nQp) from nodes 41, 61, and
 						81, How does the position of the pumping well effect the water 
 						table and interface position? 
 					</ListItem>
@@ -50,7 +50,7 @@ export default function ActivityQuestions() {
 					<ListItem>
 						3. How many iterations does it takes to converge (Iter variable). 
 						How many iterations does it take to achieve convergence? Plot h and 
-						z for each iteration for the model run where Qp is at node 51 to
+						z for each iteration for the model run where nQp is at node 51 to
 						demonstrate convergence.
 					</ListItem>
 					<ListItem>
