@@ -54,16 +54,19 @@ export default function Controls(props) {
 					<SliderForm
 						title="Rech (m/day): The amount of water replenishing the aquifer"
 						disabled={props.updatingGraph}
-						min={.001}
-						valueLabelDisplay="auto"
-						max={.020}
-						step={.001}
+						min={0}
+						valueLabelDisplay="off"
+						max={7}
+						showValue={false}
+						step={null}
+						track={false}
+						marks={props.rechValues}
 						value={props.Rech}
 						onChange={(event, value) => props.setRech(value)}
 					/>
 
 					<SliderForm
-						title="Qp (m^3/day/island area): The pumping rate"
+						title="Qp (m^3/day/(Dx*Island length)): The pumping rate"
 						disabled={props.updatingGraph}
 						min={.1}
 						valueLabelDisplay="auto"

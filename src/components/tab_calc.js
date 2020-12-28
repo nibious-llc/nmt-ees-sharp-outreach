@@ -52,7 +52,8 @@ export default function InterfaceCalculator(props) {
 	const [flowWorker, setFlowWorker] = useState(null);
 	const [delx, setDelx] = useState(60);
 	const [k, setK] = useState(-11);
-	const [Rech, setRech] = useState(0.009);
+	const [Rech, setRechBase] = useState(2e-2);
+	const [rechIndex, setRechIndex] = useState(4);
 	const [Qp, setQp] = useState(0.30);
 	const [nQp, setnQp] = useState(50);
 	const [calculatedData, setCalculatedData] = useState(null);
@@ -67,6 +68,46 @@ export default function InterfaceCalculator(props) {
 	const [maxX, setMaxX] = useState(0);
 	const [errorText, setErrorText] = useState(null);
 	const classes = useStyles();
+
+	const rechValues = [
+		{
+			value: 0,
+			label: "1e-3"
+		},
+		{
+			value: 1,
+			label: "2e-3"
+		},
+		{
+			value: 2,
+			label: "5e-3"
+		},
+		{
+			value: 3,
+			label: "1e-2"
+		},
+		{
+			value: 4,
+			label: "2e-2"
+		},
+		{
+			value: 5,
+			label: "3e-2"
+		},
+		{
+			value: 6,
+			label: "4e-2"
+		},
+		{
+			value: 7,
+			label: "5e-2"
+		},
+	]
+
+	function setRech(value) {
+		setRechBase(parseFloat(rechValues[value].label));
+		setRechIndex(value);
+	}
 	
 	function handleSwitchOnChange(event) {
 		setCalculateFlowVectors(event.target.checked);
@@ -263,8 +304,9 @@ export default function InterfaceCalculator(props) {
 					k = {k}
 					setK = {setK}
 
-					Rech = {Rech}
+					Rech = {rechIndex}
 					setRech = {setRech}
+					rechValues={rechValues}
 
 					Qp = {Qp}
 					setQp = {setQp}
