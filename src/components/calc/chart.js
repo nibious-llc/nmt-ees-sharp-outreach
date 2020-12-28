@@ -171,7 +171,7 @@ export default function InterfaceGraph(props) {
 											if (data.datasets[tooltipItem.datasetIndex].type === "vector") {
 												return "";
 											}
-											return label + ": " + tooltipItem.y;
+											return label + ": " + tooltipItem.yLabel;
 											
 										},
 							title: function(tooltipItem, data) 
