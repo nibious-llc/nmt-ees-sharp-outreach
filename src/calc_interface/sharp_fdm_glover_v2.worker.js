@@ -13,21 +13,18 @@ function initIterationLoop(Nx, delx) {
 	return [x, h, z];
 }
 
-function calculateTransmissivities(h, z, Nx, Kf, Ks) {
-	let Tf = new Array(Nx);
-	let Ts = new Array(Nx);
+function calculateThicknesses(h, z, Nx) {
+	const bf = new Array(Nx);
+	const bs = new Array(Nx);
 	for (let n = 0; n < Nx; n++) {
-		const bf = h[n] - z[n];
 
-		let bs = Math.abs(-1000 - z[n]);
-		if(bs < 50) {
-			bs = 50;
+		bf[n] = h[n] - z[n];
+		bs[n] = Math.abs(-1000 - z[n]);
+		if(bs[n] < 50) {
+			bs[n] = 50;
 		}
-
-		Tf[n] = bf*Kf;		
-		Ts[n] = bs*Ks;
 	}
-	return [Tf, Ts];
+	return [bf, bs];
 }
 
 /**
@@ -99,7 +96,10 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 		hh[i] = new Array(Nx)
 	}
 
-
+	// Place holder variables for the averaging (Github Issue #26)
+	let bfOld = undefined
+	let bsOld = undefined
+	
 	const Kf = k*rho_f*grav/vis_f*3600*24;
 	const Ks = k*rho_s*grav/vis_s*3600*24;
 
@@ -111,7 +111,24 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 	for (let it = 0; it < Iter; it++) {
 
 		// calculate Transmissivities
-		const [Tf, Ts] = calculateTransmissivities(h, z, Nx, Kf, Ks);
+		const [bf, bs] = calculateThicknesses(h, z, Nx, Kf, Ks);
+
+		if(bfOld === undefined) {
+			bfOld = bf;
+			bsOld = bs;
+		} 
+
+		const Tf = new Array(Nx)
+		const Ts = new Array(Nx)
+
+		//Average the old/new thicknesses to reduce transmitivities fluctuation 
+		for (let n = 0; n < Nx; n++) {
+			Tf[n] = (bf[n] + bfOld[n])/2 * Kf;
+			Ts[n] = (bs[n] + bsOld[n])/2 * Ks;
+		}
+
+		bfOld = bf;
+		bsOld = bs;
 
 		// assign spatially varying FDM parameters
 		let Bfp = new Array(Nx)
