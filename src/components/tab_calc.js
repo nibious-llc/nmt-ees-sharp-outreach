@@ -73,35 +73,35 @@ export default function InterfaceCalculator(props) {
 	const pumpingRates = [
 		{
 			value: 0,
-			label: "1e-3"
+			label: "0"
 		},
 		{
 			value: 1,
-			label: "2e-3"
+			label: "0.5"
 		},
 		{
 			value: 2,
-			label: "5e-3"
+			label: "1.0"
 		},
 		{
 			value: 3,
-			label: "1e-2"
+			label: "1.5"
 		},
 		{
 			value: 4,
-			label: "2e-2"
+			label: "2.0"
 		},
 		{
 			value: 5,
-			label: "3e-2"
+			label: "2.5"
 		},
 		{
 			value: 6,
-			label: "4e-2"
+			label: "3.0"
 		},
 		{
 			value: 7,
-			label: "5e-2"
+			label: "3.5"
 		}
 	]
 
@@ -200,6 +200,7 @@ export default function InterfaceCalculator(props) {
 		setUpdatingGraph(true);
 		setUpdatingGraphText(calcSharpInterfaceUpdatingText);
 		setErrorText(null);
+		console.log([delx, k, Rech, Qp * delx, nQp]);
 		sharpInterfaceWorker.postMessage([delx, k, Rech, Qp, nQp]);
 	}
 
@@ -259,7 +260,7 @@ export default function InterfaceCalculator(props) {
 	}
 
 	function getCalculatedFlowDataSorted() {
-		return calculatedFlowData[0].map(x => { return {x: x.x, y: x.z}} );
+		return calculatedFlowData[0].map(x => { return {x: x.x, y: x.z, hfem: x.hfem}} );
 	}
 	var arrowImage = new Image(15, 15);
 	arrowImage.src = "/nmt-ees-sharp-outreach/arrow.svg";

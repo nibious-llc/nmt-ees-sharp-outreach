@@ -253,7 +253,7 @@ export function SharpInterface(delx=60, k = 1.0e-11, Rech = 0.009, Qp = 0.30, nQ
 
 
 if(process.env.NODE_ENV === "test") {
-	module.exports =  {SharpInterface,initIterationLoop, validateUserInput, calculateTransmissivities}
+	module.exports =  {SharpInterface,initIterationLoop, validateUserInput, calculateThicknesses}
 } 
 
 self.onmessage = async (e) => {
