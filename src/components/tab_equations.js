@@ -13,7 +13,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { Line } from 'react-chartjs-2';
+import Chart from '../elements/Chart';
 import Popover from '@material-ui/core/Popover';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
@@ -289,7 +289,7 @@ export default function Equations(props) {
 							</Container>
 							<Container maxWidth="md">
 								<Box textAlign="center" alignItems="center">
-								<Line data={{
+								{/*<Chart data={{
 											labels: calculatedData == null ? null : calculatedData[0],
 											datasets: [
 												{
@@ -332,7 +332,7 @@ export default function Equations(props) {
 														usePointStyle: true
 													}
 												}
-										}}/>
+										}}/>*/}
 										
 										
 											<SliderForm

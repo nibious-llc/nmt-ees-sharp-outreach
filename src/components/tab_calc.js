@@ -132,6 +132,7 @@ export default function InterfaceCalculator(props) {
 		// Only touch the top nodes
 		for(let i = 20; i < hfemElements.length; i = i + 21) { 
 			hfemElements[i].z = calculatedData[count++].h;
+			
 		}
 		return hfemElements;
 	}
@@ -140,10 +141,6 @@ export default function InterfaceCalculator(props) {
 		flowWorker.onmessage= (message) => {
 			if(message.data.type === 'results' ) {
 				const results = message.data.data;
-
-				results[1] = results[1].filter((e, index) => {
-					return index % 7 === 0;
-				});
 
 				results[0] = updateHFEMHeadNodes(results[0]);
 				setCalculatedFlowData(results);
@@ -245,15 +242,17 @@ export default function InterfaceCalculator(props) {
 			return [{
 				type: 'line',
 				data: calculatedData == null ? null : calculatedData.map(e => ({ x : e.x, y: e.z})),
-				fill: 'bottom',
+				fill: 'start',
 				label: "Seawater",
+				borderColor: '#ffab55',
 				backgroundColor: '#ffab55'
 			},
 			{
 				type: 'line',
 				data: calculatedData == null ? null : calculatedData.map(e => ({ x : e.x, y: e.h})),
-				fill: 0,
+				fill: '-1',
 				label: "Fresh Water",
+				borderColor: '#72a9e1',
 				backgroundColor: '#72a9e1'
 			}];
 		}
