@@ -166,12 +166,12 @@ export default function InterfaceGraph(props) {
 										{
 											var label = data.datasets[tooltipItem.datasetIndex].label || '';
 											if (data.datasets[tooltipItem.datasetIndex].type === "scatter3D") {
-												return "hfem: " + props.dataset[1].data[0][tooltipItem.index].hfem.toString();
+												return "hfem: " + props.datasets[1].data[tooltipItem.index].hfem.toString();
 											}
 											if (data.datasets[tooltipItem.datasetIndex].type === "vector") {
 												return "";
 											}
-											return label + ": " + tooltipItem.y;
+											return label + ": " + tooltipItem.yLabel;
 											
 										},
 							title: function(tooltipItem, data) 

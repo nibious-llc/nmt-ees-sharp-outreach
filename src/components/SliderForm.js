@@ -41,7 +41,7 @@ export default function SliderForm(props) {
 	}
 	function handleSliderChangeCommitted(event, value) {
 		setValueAndValidate(value);
-		props.onChange(null, value);
+		props.onChange(event, value);
 	}
 
 	useEffect(() => {
@@ -62,11 +62,13 @@ export default function SliderForm(props) {
 					max={props.max}
 					step={props.step}
 					value={value}
-					marks
+					track={props.track}
+					scale={props.scale}
+					marks={props.marks}
 					onChange={handleSliderChange}
 					onChangeCommitted={handleSliderChangeCommitted}
 				/>}
-				label={value}
+				label={props.showValue ? value : ""}
 			/>
 		</FormGroup>
 	);

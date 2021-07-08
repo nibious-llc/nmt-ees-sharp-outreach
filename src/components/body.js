@@ -31,7 +31,7 @@ export default function Body(props) {
 				textColor="primary"
 				centered>
 					<Tab label="Seawater Intrusion"/>
-					<Tab label="Exercises"/>
+					<Tab label="Calculator"/>
 					<Tab label="Equations"/>
 			</Tabs>
 			<div hidden={tabValue !== 0}>

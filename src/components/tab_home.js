@@ -66,15 +66,15 @@ export default function Home(props) {
 					</Typography>
 					<Typography className={classes.text}>
 						Each person in the USA consumes on average about 200 gallons of water per day.
-						Water demand on Cape Cod has risen from about 2 billion million gallons per year
-						to over 15 billion gallons per year between 1900 and 1990 (Masterson, 2004).
+						Water demand on Cape Cod has risen from about 93 million gallons per year
+						to over 303 million gallons per year between 1900 and 1990 (Masterson, 2004).
 						Water demand is often satisfied by pumping of groundwater hosted in shallow
 						aquifers. Aquifers are porous, permeable sediments whose pore spaces are filled
 						with freshwater. The upper surface of shallow aquifers is referred to as the
 						water table. In coastal regions, the freshwater lens of the water table aquifer
 						literally floats on top of seawater much the same way ice bergs flow in the
-						ocean. Because of the density differences between freshwater (1000 <MathJax.Node inline formula={'kg/m^3'}/> and
-						seawater <MathJax.Node inline formula={'kg/m^3'}/>) for every meter of water table height above sea level there
+						ocean. Because of the density differences between freshwater (1000 <MathJax.Node inline formula={'kg/m^3'}/>) and
+						seawater (1025 <MathJax.Node inline formula={'kg/m^3'}/>) for every meter of water table height above sea level there
 						are 40 meters of freshwater. The transition between freshwater and seawater is
 						referred to as the saltwater-freshwater interface. The interface represents to
 						bottom of the shallow water table aquifers. The US EPA indicated that the USA
