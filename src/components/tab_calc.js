@@ -223,14 +223,13 @@ export default function InterfaceCalculator(props) {
 	
 	function getDatasets() {
 		if(calculateFlowVectors) {	
-			return [{
+			return [/*{
 				type: 'vector',
 				data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
 				rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
 				label: "Flow Vectors",
 				pointStyle: arrowImage,
-				backgroundColor: 'rgba(0,0,0,0)'
-			},{
+			},*/{
 				type: 'scatter3D',
 				data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
 				label: "hfem",

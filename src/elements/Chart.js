@@ -37,7 +37,7 @@ export default function NibiousChart(props) {
       options: {
         elements: {
           point: {
-            hoverRadius: 15
+            hitRadius: 5
           }
         },
         responsive: true,

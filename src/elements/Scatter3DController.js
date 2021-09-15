@@ -34,7 +34,7 @@ class Scatter3DController extends ScatterController {
 				grd1.addColorStop(1, meta.data[i+22].options.backgroundColor);
 
 				ctx.fillStyle = grd1;
-				ctx.strokeStyle = grd1;
+				ctx.strokeStyle = "#ffffff";
 				ctx.lineWidth = 3;
 
 				ctx.beginPath();
