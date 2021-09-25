@@ -69,9 +69,9 @@ class Scatter3DController extends ScatterController {
 
 				
 
-				var grd1 = ctx.createLinearGradient(startX, startY, nextX, nextY);
-				grd1.addColorStop(0, pt.options.backgroundColor);
-				grd1.addColorStop(1, meta.data[i+22].options.backgroundColor);
+				var grd1 = ctx.createLinearGradient(a, b, g,h);
+				grd1.addColorStop(0, point3.options.backgroundColor);
+				grd1.addColorStop(1, point7.options.backgroundColor);
 
 				ctx.fillStyle = grd1;
 				ctx.strokeStyle = grd1;
