@@ -104,7 +104,7 @@ export default function InterfaceCalculator(props) {
 		setRechBase(parseFloat(rechValues[value].label));
 		setRechIndex(value);
 	}
-	
+
 	function handleSwitchOnChange(event) {
 		setCalculateFlowVectors(event.target.checked);
 		// If it hasn't been calculated, calculate it right now
@@ -114,14 +114,16 @@ export default function InterfaceCalculator(props) {
 	}
 
 	useEffect(() => {
-		
-		setSharpInterfaceWorker(SharpInterfaceWorker());
-		setFlowWorker(FlowWorker());
+
+		const siw = SharpInterfaceWorker();
+		setSharpInterfaceWorker(siw);
+		const fw = FlowWorker();
+		setFlowWorker(fw);
 
 		// Cleanup Function
 		return function () {
-			sharpInterfaceWorker.terminate();
-			flowWorker.terminate();
+			siw.terminate();
+			fw.terminate();
 		};
 	// eslint-disable-next-line react-hooks/exhaustive-deps,
 	}, []);
@@ -130,9 +132,9 @@ export default function InterfaceCalculator(props) {
 
 		let count = 0;
 		// Only touch the top nodes
-		for(let i = 20; i < hfemElements.length; i = i + 21) { 
+		for(let i = 20; i < hfemElements.length; i = i + 21) {
 			hfemElements[i].z = calculatedData[count++].h;
-			
+
 		}
 		return hfemElements;
 	}
@@ -143,6 +145,9 @@ export default function InterfaceCalculator(props) {
 				const results = message.data.data;
 
 				results[0] = updateHFEMHeadNodes(results[0]);
+				results[1] = results[1].filter(function(d, i) { return (i) % 7 === 0; });
+				console.log("hfem length: " + results[0].length)
+				console.log("flow length: " +results[1].length)
 				setCalculatedFlowData(results);
 				setUpdatingGraph(false);
 			}
@@ -151,7 +156,7 @@ export default function InterfaceCalculator(props) {
 		setUpdatingGraph(true);
 		setUpdatingGraphText(calcFlowVectorsUpdatingText);
 	}
-	
+
 	function calcInterface() {
 		setUpdatingGraph(true);
 		setUpdatingGraphText(calcSharpInterfaceUpdatingText);
@@ -178,11 +183,15 @@ export default function InterfaceCalculator(props) {
 				calcFlowVectors(delx, h, z);
 			}
 			props.OnUpdateData(results);
-			
+
 			setMinY(min(min(z), min(h)));
 			setMaxY(max(max(z), max(h)));
 			setMinX(min(x));
 			console.log(max(x));
+			console.log(min(x));
+			console.log(min(min(z), min(h)));
+			console.log(max(max(z), max(h)));
+			console.log(delx);
 			setMaxX(max(x));
 
 			if(calculateFlowVectors === false) {
@@ -198,7 +207,7 @@ export default function InterfaceCalculator(props) {
 				}
 			}
 			calcInterface();
-			
+
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sharpInterfaceWorker, delx, k, Rech, Qp, nQp]);
@@ -212,7 +221,7 @@ export default function InterfaceCalculator(props) {
 
 		const returnValue = "rgba(" + colorStep.toString() + "," + colorStep.toString() + "," + (255-colorStep).toString() + ",1)";
 		return returnValue;
-		
+
 	}
 
 	function getCalculatedFlowDataSorted() {
@@ -220,22 +229,22 @@ export default function InterfaceCalculator(props) {
 	}
 	var arrowImage = new Image(15, 15);
 	arrowImage.src = "/nmt-ees-sharp-outreach/arrow.svg";
-	
+
 	function getDatasets() {
-		if(calculateFlowVectors) {	
-			return [/*{
+		if(calculateFlowVectors) {
+			return [{
 				type: 'vector',
 				data: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => x.point),
 				rotation: calculatedFlowData == null ? null : calculatedFlowData[1].map(x => { return {qx: x.qx/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2)), qz: x.qz/Math.sqrt(Math.pow(x.qx, 2) + Math.pow(x.qz,2))}}),
 				label: "Flow Vectors",
-				pointStyle: arrowImage,
-			},*/{
+				pointStyle: arrowImage
+			}, {
 				type: 'scatter3D',
 				data: calculatedFlowData == null ? null : getCalculatedFlowDataSorted(),
 				label: "hfem",
 				backgroundColor: 'rgba(0,0,0,0)',
 				borderColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
-				pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem))								
+				pointBackgroundColor: calculatedFlowData == null ? null : calculatedFlowData[0].map(x => determineColor(x.hfem)),
 			}];
 		} else {
 			return [{
@@ -264,7 +273,7 @@ export default function InterfaceCalculator(props) {
 				<Typography><b>{errorText}</b></Typography>
 			</Grid>
 			);
-		} 
+		}
 		if(updatingGraph) {
 			return (
 				<Grid container justify="center"  alignItems="center" className={classes.updatingOverlay}>
@@ -279,7 +288,7 @@ export default function InterfaceCalculator(props) {
 		<Paper className={classes.root}>
 			<Grid container spacing={3}>
 				<Grid item md={8} xs={12} className={classes.graphGrid}>
-					<div style={{position: "relative"}}>	
+					<div style={{position: "relative"}}>
 						<InterfaceGraph
 							datasets = {getDatasets()}
 							minY = {minY}
@@ -287,7 +296,7 @@ export default function InterfaceCalculator(props) {
 							delx = {delx}
 							minX = {minX}
 							maxX = {maxX}
-						/>		
+						/>
 						{getOverlays()}
 					</div>
 				</Grid>

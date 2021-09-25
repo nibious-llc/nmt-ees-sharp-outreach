@@ -37,35 +37,40 @@ export default function NibiousChart(props) {
       options: {
         elements: {
           point: {
-            hitRadius: 5
+            hitRadius: 3
           }
+        },
+        animation: {
+          easing: "easeInOutQuint",
+          duration: 0
         },
         responsive: true,
         aspectRatio: shouldAdaptToMobile ? 1 : 2,
           scales: {
-              x: {
-                  beginAtZero: true,
-                  type: 'linear',
-                  ticks: {
-                    stepSize: 500
-                  },
-                  scaleLabel: {
-                    labelString: "Time [min]",
-                    display: true,
-                  },
+            x: {
+              beginAtZero: true,
+              type: 'linear',
+              ticks: {
+                stepSize: 500
               },
-              y: {
-                scaleLabel: {
-                  labelString: chartObjects.yLabel,
-                  display: true,
-                },
-                ticks: {
-                  autoSkip: true
-                },
-              }
+              scaleLabel: {
+                labelString: "Distance (m)",
+                display: true,
+              },
+            },
+            y: {
+              scaleLabel: {
+                labelString: "Elevation (m)",
+                display: true,
+              },
+              ticks: {
+                autoSkip: true
+              },
+            }
           },
           interaction: {
-            mode: 'index'
+            mode: chartObjects.datasets[0].type === "line" ? "index" : 'point',
+            intersect: false,
           },
           plugins: {
             legend: {
@@ -73,54 +78,84 @@ export default function NibiousChart(props) {
               position: "top",
               labels: {
                 boxHeight: 0,
+                usePointStyle: true,
                 filter: function(item, chart) {
                   return !item.text.includes('_');
                 }
               },
-              onClick: function(e, legendItem) { // need to hide index +1 and index +2 for additional lines
-                let index = legendItem.datasetIndex;
-                let ci = this.chart;
-
-                let line = ci.getDatasetMeta(index);
-                let line1 = ci.getDatasetMeta(index + 1);
-                let line2 = ci.getDatasetMeta(index + 2);
-
-                line.hidden = line.hidden === null ? line.visible : !line.hidden;
-
-                if(line1.label !== undefined && line1.label.includes("_")) {
-                  line1.hidden = line1.hidden === null ? line1.visible : !line1.hidden;
-                }
-
-                if(line2.label !== undefined && line2.label.includes("_")) {
-                  line2.hidden = line2.hidden === null ? line2.visible : !line2.hidden;
-                }
-
-                ci.update();
-              },
+              onClick: (e) => { return; }
+            },
+            title: {
+              text: "Freshwater/Saltwater Interface",
+              display: true,
             },
             tooltip: {
               enabled: true,
-              intersect: true,
+              intersect: false,
               boxHeight: 1,
               borderWidth: 5,
               position: "nearest",
+              usePointStyle: true,
+              bodyColor: "#000000",
+              backgroundColor: "#F8F8F8",
+              titleColor: "#000000",
+              filter: function (tooltipItem) {
+                if(chartObjects.datasets[0].type === "line") {
+                  return true;
+                } else {
+                  return tooltipItem.datasetIndex === 1;
+                }
+              },
               callbacks: {
-                label: function(context) {
-                    var label = context.dataset.label || '';
-                    
-                    if (label) {
-                      if(label.includes("_")) {
-                        label = label.substring(1)
-                      }
-                        label += ': ';
+                beforeBody: function(contexts) {
+
+                  // Create bins for context types
+                  const uniqueContexts = {}
+
+                  contexts.forEach(context => {
+                    if (uniqueContexts[context.dataset.label] === undefined) { //raw.hfem
+                      uniqueContexts[context.dataset.label] = context;
+                      uniqueContexts[context.dataset.label].average = chartObjects.datasets[0].type === "line" ? context.formattedValue : context.raw.hfem
+                      uniqueContexts[context.dataset.label].count = 1;
+                    } else {
+                      uniqueContexts[context.dataset.label].average += chartObjects.datasets[0].type === "line" ? context.formattedValue : context.raw.hfem
+                      uniqueContexts[context.dataset.label].count++;
                     }
-                    if (!isNaN(context.element.y)) {
-                        label += context.element.y;
-                        console.log(context.element.y)
+                  });
+
+                  // Reduce the length
+                  contexts.length = Object.keys(uniqueContexts).length;
+
+                  // Use the original context to keep icons the same
+                  Object.keys(uniqueContexts).forEach((contextName, i) => {
+
+                    // Create a real average
+                    uniqueContexts[contextName].average = uniqueContexts[contextName].average / uniqueContexts[contextName].count;
+
+                    contexts[i] = uniqueContexts[contextName];
+
+                  });
+                },
+                label: function(context) {
+                    if(context === undefined) {
+                      return;
+                    }
+                    var label = context.dataset.label || '';
+
+
+                    label += ': ';
+
+                    if (!isNaN(context.average)) {
+                        label += context.average;
+
                     }
 
                     return label;
-                }
+                },
+                title: function(tooltipItem, data)
+                      {
+                        return "Values";
+                      },
               }
             }
           }

@@ -7,9 +7,9 @@ class VectorChartController extends ScatterController {
 		if(meta.data.length > 0 ) {
 
 			var ctx = this.chart.ctx;
-			
+
 			ctx.save();
-			for(let i = 0; i < meta.data.length; i += 7) {
+			for(let i = 0; i < meta.data.length; i++) {
 				var pt = meta.data[i];
 
 				const startX = pt.x;
@@ -27,18 +27,19 @@ class VectorChartController extends ScatterController {
 				const endX = 0;
 				const endY = magnitude * 10;
 
-				ctx.beginPath();
-				ctx.strokeStyle = 'rgba(0,0,0,1)';						
+			
+				ctx.strokeStyle = 'rgba(0,0,0,1)';
+				ctx.lineWidth = 1;
+				ctx.beginPath();				
 				ctx.translate(startX, startY);
 				ctx.rotate(angle);
-				
+
 				ctx.moveTo(0, 0);
 				ctx.lineTo(endX, endY);
 				ctx.lineTo(endX - 3, endY - 3);
 				ctx.moveTo(endX, endY);
-				ctx.lineTo(endX + 3, endY - 3);						
+				ctx.lineTo(endX + 3, endY - 3);
 				ctx.stroke();
-
 				ctx.rotate(-1 * angle);
 				ctx.translate(-1 * startX, -1 * startY);
 			}

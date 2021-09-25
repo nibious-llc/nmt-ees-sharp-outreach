@@ -13,9 +13,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Chart from '../elements/Chart';
 import Popover from '@material-ui/core/Popover';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import InterfaceGraph from './calc/chart';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -83,6 +83,8 @@ export default function Equations(props) {
 	const [anchorEl, setAnchorEl] = React.useState(null);
 
 	function handleIterationChange(event, value) {
+		console.log("Changing iteration")
+		console.log(calculatedData)
 		setCurrentIteration(value);
 	}
 
@@ -289,50 +291,25 @@ export default function Equations(props) {
 							</Container>
 							<Container maxWidth="md">
 								<Box textAlign="center" alignItems="center">
-								{/*<Chart data={{
-											labels: calculatedData == null ? null : calculatedData[0],
-											datasets: [
+								{<InterfaceGraph id="equationsChart" datasets={[
 												{
-													data: calculatedData == null ? null : calculatedData[2][currentIteration],
-													fill: 'bottom',
+													type: 'line',
+													data: calculatedData == null ? null : calculatedData[2][currentIteration].map((e, i) => ({ x : calculatedData[0][i], y: e})),
+													fill: 'start',
 													label: "Seawater",
+													borderColor: '#ffab55',
 													backgroundColor: '#ffab55'
 												},
 												{
-													data: calculatedData == null ? null : calculatedData[1][currentIteration],
-													fill: 0,
+													type: 'line',
+													data: calculatedData == null ? null : calculatedData[1][currentIteration].map((e, i) => ({ x : calculatedData[0][i], y: e})),
+													fill: '-1',
 													label: "Fresh Water",
+													borderColor: '#72a9e1',
 													backgroundColor: '#72a9e1'
 												}
-											]
-								
-											}} title="Freshwater/Saltwater Interface" options={
-											{
-												scales: {
-														yAxes: [{
-															scaleLabel: {
-																display: true,
-																labelString: "Elevation (m)"
-															}
-														}],
-														xAxes: [{
-															scaleLabel: {
-																display: true,
-																labelString: "Distance (m)"
-															}
-														}]
-												},
-												title: {
-													display: true,
-													test: ''
-												},
-												legend: {
-													onClick: (e) => e.stopPropagation(),
-													labels: {
-														usePointStyle: true
-													}
-												}
-										}}/>*/}
+											]}
+											/>}
 										
 										
 											<SliderForm
