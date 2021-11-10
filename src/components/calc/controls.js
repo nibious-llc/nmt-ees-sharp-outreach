@@ -68,9 +68,9 @@ export default function Controls(props) {
 					<SliderForm
 						title="Qp (m^3/day/(Dx*cell area)): The pumping rate"
 						disabled={props.updatingGraph}
-						min={0.1}
+						min={0.0}
 						valueLabelDisplay="auto"
-						max={0.35}
+						max={0.2}
 						step={0.01}
 						track={false}
 						value={props.Qp}

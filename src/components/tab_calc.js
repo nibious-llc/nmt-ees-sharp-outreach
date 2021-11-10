@@ -54,7 +54,7 @@ export default function InterfaceCalculator(props) {
 	const [k, setK] = useState(-11);
 	const [Rech, setRechBase] = useState(5e-3);
 	const [rechIndex, setRechIndex] = useState(2);
-	const [Qp, setQp] = useState(0.2);
+	const [Qp, setQp] = useState(0.0);
 	const [nQp, setnQp] = useState(50);
 	const [calculatedData, setCalculatedData] = useState(null);
 	const [calculateFlowVectors, setCalculateFlowVectors] = useState(false);
@@ -72,7 +72,7 @@ export default function InterfaceCalculator(props) {
 	const rechValues = [
 		{
 			value: 0,
-			label: "1e-3"
+			label: "1.5e-3"
 		},
 		{
 			value: 1,
@@ -80,23 +80,15 @@ export default function InterfaceCalculator(props) {
 		},
 		{
 			value: 2,
-			label: "5e-3"
+			label: "3e-3"
 		},
 		{
 			value: 3,
-			label: "2e-2"
+			label: "4e-3"
 		},
 		{
 			value: 4,
-			label: "3e-2"
-		},
-		{
-			value: 5,
-			label: "4e-2"
-		},
-		{
-			value: 6,
-			label: "5e-2"
+			label: "5e-3"
 		}
 	]
 
