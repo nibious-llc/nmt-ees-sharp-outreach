@@ -37,7 +37,7 @@ export default function NibiousChart(props) {
       options: {
         elements: {
           point: {
-            hitRadius: 3
+            hitRadius: 5
           }
         },
         animation: {
