@@ -39,6 +39,9 @@ export default function Footer() {
 					<Typography color='textSecondary'>
 					US National Science Foundation, Frontiers in Earth Sciences, Grant #1925974
 					</Typography>
+					<Typography color='textSecondary'>
+					Support from the European Union Horizon Programme (#677898, MARCAN) was used to develop this website. 
+					</Typography>
 					<Typography variant="h5" color='textSecondary'>
 						Authors
 					</Typography>

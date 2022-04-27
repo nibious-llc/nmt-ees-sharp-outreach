@@ -11,6 +11,8 @@ The website can be found here: https://projects.nibious.com/sharp-interface
 
 Start the development server
 
+Might need `export NODE_OPTIONS=--openssl-legacy-provider` in a docker container to get it running with the node image.
+
 ### yarn build
 
 Build a production version
@@ -28,6 +30,7 @@ while the calculations are being computed.
 
 # Acknowledgements
 - US National Science Foundation, Frontiers in Earth Sciences, Grant #1925974
+- Support from the European Union Horizon Programme (#677898, MARCAN) was used to develop this website. 
 
 # Authors
 - Owen Parkins, Department of Computer Science, New Mexico Institute of Mining and Technology
