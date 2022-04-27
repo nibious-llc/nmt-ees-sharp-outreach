@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/nmt-ees-sharp-outreach/precache-manifest.8bc468f9b294868be26388ef2f9feafa.js"
+  "/nmt-ees-sharp-outreach/precache-manifest.bc5e741027ba34165920aec72f015c8c.js"
 );
 
 self.addEventListener('message', (event) => {
